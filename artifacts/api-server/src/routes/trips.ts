@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, and, sql } from "drizzle-orm";
+import { requireAuth } from "../middleware/auth";
 import {
   db,
   tripsTable,
@@ -125,7 +126,7 @@ router.patch("/trips/:id", async (req, res): Promise<void> => {
   res.json(serializeTrip(trip));
 });
 
-router.post("/trips/:id/pay", async (req, res): Promise<void> => {
+router.post("/trips/:id/pay", requireAuth, async (req, res): Promise<void> => {
   const params = PayForTripParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

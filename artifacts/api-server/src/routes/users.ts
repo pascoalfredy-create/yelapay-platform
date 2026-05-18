@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, ilike, or } from "drizzle-orm";
+import { eq, ilike, or, and } from "drizzle-orm";
 import { db, usersTable, walletsTable } from "@workspace/db";
 import {
   CreateUserBody,
@@ -10,8 +10,14 @@ import {
   GetUserWalletParams,
   ListUsersQueryParams,
 } from "@workspace/api-zod";
+import { hashPin } from "../lib/auth";
 
 const router: IRouter = Router();
+
+function stripPin<T extends { pin?: string | null }>(user: T): Omit<T, "pin"> {
+  const { pin: _pin, ...safe } = user;
+  return safe;
+}
 
 router.get("/users", async (req, res): Promise<void> => {
   const query = ListUsersQueryParams.safeParse(req.query);
@@ -21,7 +27,6 @@ router.get("/users", async (req, res): Promise<void> => {
   }
   const { role, status, search } = query.data;
 
-  let q = db.select().from(usersTable).$dynamic();
   const conditions = [];
   if (role) conditions.push(eq(usersTable.role, role));
   if (status) conditions.push(eq(usersTable.status, status));
@@ -33,13 +38,14 @@ router.get("/users", async (req, res): Promise<void> => {
       )!,
     );
   }
-  if (conditions.length > 0) {
-    const { and } = await import("drizzle-orm");
-    q = q.where(and(...conditions));
-  }
 
-  const users = await q.orderBy(usersTable.createdAt);
-  res.json(users);
+  const users = await db
+    .select()
+    .from(usersTable)
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(usersTable.createdAt);
+
+  res.json(users.map(stripPin));
 });
 
 router.post("/users", async (req, res): Promise<void> => {
@@ -58,12 +64,17 @@ router.post("/users", async (req, res): Promise<void> => {
     return;
   }
 
-  const [user] = await db.insert(usersTable).values(parsed.data).returning();
+  const values: typeof parsed.data = { ...parsed.data };
+  if (values.pin) {
+    values.pin = await hashPin(values.pin);
+  }
+
+  const [user] = await db.insert(usersTable).values(values).returning();
 
   // Auto-create a wallet for the new user
   await db.insert(walletsTable).values({ userId: user.id, balance: "0.00" });
 
-  res.status(201).json(user);
+  res.status(201).json(stripPin(user));
 });
 
 router.get("/users/:id", async (req, res): Promise<void> => {
@@ -83,7 +94,7 @@ router.get("/users/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  res.json(user);
+  res.json(stripPin(user));
 });
 
 router.patch("/users/:id", async (req, res): Promise<void> => {
@@ -99,9 +110,14 @@ router.patch("/users/:id", async (req, res): Promise<void> => {
     return;
   }
 
+  const updateData: typeof parsed.data = { ...parsed.data };
+  if (updateData.pin) {
+    updateData.pin = await hashPin(updateData.pin);
+  }
+
   const [user] = await db
     .update(usersTable)
-    .set(parsed.data)
+    .set(updateData)
     .where(eq(usersTable.id, params.data.id))
     .returning();
 
@@ -110,7 +126,7 @@ router.patch("/users/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  res.json(user);
+  res.json(stripPin(user));
 });
 
 router.delete("/users/:id", async (req, res): Promise<void> => {

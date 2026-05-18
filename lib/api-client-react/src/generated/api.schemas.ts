@@ -339,6 +339,41 @@ export interface TripPaymentInput {
   amount?: number;
 }
 
+export interface LoginInput {
+  /** @minLength 9 */
+  phone: string;
+  /**
+     * @minLength 4
+     * @maxLength 6
+     */
+  pin: string;
+}
+
+export interface AuthToken {
+  token: string;
+  user: User;
+}
+
+export interface SetupPinInput {
+  /** @minLength 9 */
+  phone: string;
+  /**
+     * @minLength 4
+     * @maxLength 6
+     */
+  pin: string;
+}
+
+export interface SetPinInput {
+  /** The current PIN (required to change) */
+  currentPin: string;
+  /**
+     * @minLength 4
+     * @maxLength 6
+     */
+  pin: string;
+}
+
 export interface PlatformStats {
   totalUsers: number;
   totalDrivers: number;

@@ -18,6 +18,106 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
+ * @summary Login with phone and PIN
+ */
+export const loginBodyPhoneMin = 9;
+
+export const loginBodyPinMin = 4;
+export const loginBodyPinMax = 6;
+
+
+
+export const LoginBody = zod.object({
+  "phone": zod.string().min(loginBodyPhoneMin),
+  "pin": zod.string().min(loginBodyPinMin).max(loginBodyPinMax)
+})
+
+export const LoginResponse = zod.object({
+  "token": zod.string(),
+  "user": zod.object({
+  "id": zod.number(),
+  "phone": zod.string(),
+  "name": zod.string(),
+  "role": zod.enum(['passenger', 'driver', 'admin']),
+  "status": zod.enum(['active', 'suspended']),
+  "pin": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+})
+
+
+/**
+ * @summary Get the currently authenticated user
+ */
+export const GetMeResponse = zod.object({
+  "id": zod.number(),
+  "phone": zod.string(),
+  "name": zod.string(),
+  "role": zod.enum(['passenger', 'driver', 'admin']),
+  "status": zod.enum(['active', 'suspended']),
+  "pin": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Set a PIN for the first time (no existing PIN required)
+ */
+export const setupPinBodyPhoneMin = 9;
+
+export const setupPinBodyPinMin = 4;
+export const setupPinBodyPinMax = 6;
+
+
+
+export const SetupPinBody = zod.object({
+  "phone": zod.string().min(setupPinBodyPhoneMin),
+  "pin": zod.string().min(setupPinBodyPinMin).max(setupPinBodyPinMax)
+})
+
+export const SetupPinResponse = zod.object({
+  "token": zod.string(),
+  "user": zod.object({
+  "id": zod.number(),
+  "phone": zod.string(),
+  "name": zod.string(),
+  "role": zod.enum(['passenger', 'driver', 'admin']),
+  "status": zod.enum(['active', 'suspended']),
+  "pin": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+})
+
+
+/**
+ * @summary Change the PIN for the authenticated user
+ */
+export const setPinBodyPinMin = 4;
+export const setPinBodyPinMax = 6;
+
+
+
+export const SetPinBody = zod.object({
+  "currentPin": zod.string().describe('The current PIN (required to change)'),
+  "pin": zod.string().min(setPinBodyPinMin).max(setPinBodyPinMax)
+})
+
+export const SetPinResponse = zod.object({
+  "id": zod.number(),
+  "phone": zod.string(),
+  "name": zod.string(),
+  "role": zod.enum(['passenger', 'driver', 'admin']),
+  "status": zod.enum(['active', 'suspended']),
+  "pin": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
  * @summary List all users
  */
 export const ListUsersQueryParams = zod.object({

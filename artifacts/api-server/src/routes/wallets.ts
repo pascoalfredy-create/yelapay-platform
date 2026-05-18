@@ -7,10 +7,11 @@ import {
   TransferFundsBody,
 } from "@workspace/api-zod";
 import { randomUUID } from "crypto";
+import { requireAuth } from "../middleware/auth";
 
 const router: IRouter = Router();
 
-router.post("/wallets/:id/topup", async (req, res): Promise<void> => {
+router.post("/wallets/:id/topup", requireAuth, async (req, res): Promise<void> => {
   const params = TopUpWalletParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -53,7 +54,7 @@ router.post("/wallets/:id/topup", async (req, res): Promise<void> => {
   res.json({ ...updated, balance: parseFloat(updated.balance) });
 });
 
-router.post("/wallets/transfer", async (req, res): Promise<void> => {
+router.post("/wallets/transfer", requireAuth, async (req, res): Promise<void> => {
   const parsed = TransferFundsBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });

@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './authToken';
 export * from './errorResponse';
 export * from './healthStatus';
 export * from './listRoutesParams';
@@ -21,6 +22,7 @@ export * from './listUsersStatus';
 export * from './listVehiclesParams';
 export * from './listVehiclesStatus';
 export * from './listVehiclesType';
+export * from './loginInput';
 export * from './platformStats';
 export * from './route';
 export * from './routeInput';
@@ -28,6 +30,8 @@ export * from './routeStats';
 export * from './routeStatus';
 export * from './routeUpdate';
 export * from './routeUpdateStatus';
+export * from './setPinInput';
+export * from './setupPinInput';
 export * from './topUpInput';
 export * from './transaction';
 export * from './transactionStatus';
