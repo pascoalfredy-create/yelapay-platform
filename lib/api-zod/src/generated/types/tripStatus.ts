@@ -6,6 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
-}
+export type TripStatus = typeof TripStatus[keyof typeof TripStatus];
+
+
+export const TripStatus = {
+  active: 'active',
+  completed: 'completed',
+  cancelled: 'cancelled',
+} as const;

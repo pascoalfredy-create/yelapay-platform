@@ -6,6 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface RouteStats {
+  routeId: number;
+  totalTrips: number;
+  completedTrips: number;
+  totalRevenue: number;
+  totalPassengers: number;
+  avgPassengersPerTrip: number;
 }

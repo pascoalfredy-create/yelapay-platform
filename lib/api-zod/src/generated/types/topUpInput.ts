@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface TopUpInput {
+  /**
+     * Amount in AOA to add
+     * @minimum 1
+     */
+  amount: number;
 }

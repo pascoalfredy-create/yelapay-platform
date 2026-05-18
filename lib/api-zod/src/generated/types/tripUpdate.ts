@@ -5,7 +5,8 @@
  * YelaPay+ API — digital payment platform for informal transport in Angola
  * OpenAPI spec version: 0.1.0
  */
+import type { TripUpdateStatus } from './tripUpdateStatus';
 
-export interface HealthStatus {
-  status: string;
+export interface TripUpdate {
+  status?: TripUpdateStatus;
 }

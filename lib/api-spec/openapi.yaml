@@ -3,13 +3,28 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: YelaPay+ API — digital payment platform for informal transport in Angola
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: users
+    description: User management (passengers, drivers, admins)
+  - name: wallets
+    description: Digital wallet operations
+  - name: transactions
+    description: Transaction history
+  - name: routes
+    description: Transport route management
+  - name: vehicles
+    description: Vehicle (candongueiro/kupapata) management
+  - name: trips
+    description: Trip lifecycle management
+  - name: stats
+    description: Platform analytics and statistics
+
 paths:
   /healthz:
     get:
@@ -24,13 +39,1130 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ──────────────── Users ────────────────
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users
+      parameters:
+        - in: query
+          name: role
+          schema:
+            type: string
+            enum: [passenger, driver, admin]
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, suspended]
+        - in: query
+          name: search
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Phone number already registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get a user by ID
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update a user
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      summary: Delete a user
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/{userId}/wallet:
+    get:
+      operationId: getUserWallet
+      tags: [wallets]
+      summary: Get the wallet for a user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Wallet found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ──────────────── Wallets ────────────────
+  /wallets/{id}/topup:
+    post:
+      operationId: topUpWallet
+      tags: [wallets]
+      summary: Top up a wallet balance (AOA)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TopUpInput"
+      responses:
+        "200":
+          description: Top-up successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+        "400":
+          description: Invalid amount
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Wallet not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /wallets/transfer:
+    post:
+      operationId: transferFunds
+      tags: [wallets]
+      summary: Transfer funds between wallets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferInput"
+      responses:
+        "200":
+          description: Transfer successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+        "400":
+          description: Insufficient balance or invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Wallet not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ──────────────── Transactions ────────────────
+  /transactions:
+    get:
+      operationId: listTransactions
+      tags: [transactions]
+      summary: List transactions (filterable)
+      parameters:
+        - in: query
+          name: walletId
+          schema:
+            type: integer
+        - in: query
+          name: userId
+          schema:
+            type: integer
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [topup, payment, transfer]
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [pending, completed, failed]
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaction"
+
+  /transactions/{id}:
+    get:
+      operationId: getTransaction
+      tags: [transactions]
+      summary: Get a transaction by ID
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Transaction found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ──────────────── Routes ────────────────
+  /routes:
+    get:
+      operationId: listRoutes
+      tags: [routes]
+      summary: List all transport routes
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, inactive]
+        - in: query
+          name: search
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of routes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Route"
+    post:
+      operationId: createRoute
+      tags: [routes]
+      summary: Create a transport route
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RouteInput"
+      responses:
+        "201":
+          description: Route created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Route"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /routes/{id}:
+    get:
+      operationId: getRoute
+      tags: [routes]
+      summary: Get a route by ID
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Route found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Route"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateRoute
+      tags: [routes]
+      summary: Update a route
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RouteUpdate"
+      responses:
+        "200":
+          description: Route updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Route"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteRoute
+      tags: [routes]
+      summary: Delete a route
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /routes/{id}/stats:
+    get:
+      operationId: getRouteStats
+      tags: [routes]
+      summary: Get usage statistics for a route
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Route statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RouteStats"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ──────────────── Vehicles ────────────────
+  /vehicles:
+    get:
+      operationId: listVehicles
+      tags: [vehicles]
+      summary: List all vehicles
+      parameters:
+        - in: query
+          name: driverId
+          schema:
+            type: integer
+        - in: query
+          name: routeId
+          schema:
+            type: integer
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, inactive]
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [candongueiro, kupapata, taxi]
+      responses:
+        "200":
+          description: List of vehicles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Vehicle"
+    post:
+      operationId: createVehicle
+      tags: [vehicles]
+      summary: Register a new vehicle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VehicleInput"
+      responses:
+        "201":
+          description: Vehicle registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: License plate already registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /vehicles/{id}:
+    get:
+      operationId: getVehicle
+      tags: [vehicles]
+      summary: Get a vehicle by ID
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Vehicle found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateVehicle
+      tags: [vehicles]
+      summary: Update a vehicle
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VehicleUpdate"
+      responses:
+        "200":
+          description: Vehicle updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteVehicle
+      tags: [vehicles]
+      summary: Delete a vehicle
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ──────────────── Trips ────────────────
+  /trips:
+    get:
+      operationId: listTrips
+      tags: [trips]
+      summary: List trips
+      parameters:
+        - in: query
+          name: routeId
+          schema:
+            type: integer
+        - in: query
+          name: driverId
+          schema:
+            type: integer
+        - in: query
+          name: vehicleId
+          schema:
+            type: integer
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, completed, cancelled]
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of trips
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Trip"
+    post:
+      operationId: createTrip
+      tags: [trips]
+      summary: Start a new trip
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TripInput"
+      responses:
+        "201":
+          description: Trip started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trip"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /trips/{id}:
+    get:
+      operationId: getTrip
+      tags: [trips]
+      summary: Get a trip by ID
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Trip found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trip"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateTrip
+      tags: [trips]
+      summary: Update a trip (e.g. end it or cancel it)
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TripUpdate"
+      responses:
+        "200":
+          description: Trip updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trip"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /trips/{id}/pay:
+    post:
+      operationId: payForTrip
+      tags: [trips]
+      summary: Passenger pays for a trip
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TripPaymentInput"
+      responses:
+        "201":
+          description: Payment successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TripPayment"
+        "400":
+          description: Insufficient balance or invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Trip or user not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /trips/{id}/payments:
+    get:
+      operationId: listTripPayments
+      tags: [trips]
+      summary: List all payments for a trip
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: List of trip payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TripPayment"
+        "404":
+          description: Trip not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ──────────────── Stats ────────────────
+  /stats:
+    get:
+      operationId: getPlatformStats
+      tags: [stats]
+      summary: Get overall platform statistics
+      responses:
+        "200":
+          description: Platform statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformStats"
+
 components:
+  parameters:
+    IdParam:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+
   schemas:
     HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    # ── Users ──
+    User:
+      type: object
+      required: [id, phone, name, role, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        phone:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [passenger, driver, admin]
+        status:
+          type: string
+          enum: [active, suspended]
+        pin:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserInput:
+      type: object
+      required: [phone, name, role]
+      properties:
+        phone:
+          type: string
+          minLength: 9
+        name:
+          type: string
+          minLength: 1
+        role:
+          type: string
+          enum: [passenger, driver, admin]
+        pin:
+          type: string
+
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        status:
+          type: string
+          enum: [active, suspended]
+        pin:
+          type: string
+
+    # ── Wallets ──
+    Wallet:
+      type: object
+      required: [id, userId, balance, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        balance:
+          type: number
+          description: Balance in AOA (Angolan Kwanza)
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TopUpInput:
+      type: object
+      required: [amount]
+      properties:
+        amount:
+          type: number
+          minimum: 1
+          description: Amount in AOA to add
+
+    TransferInput:
+      type: object
+      required: [fromWalletId, toWalletId, amount]
+      properties:
+        fromWalletId:
+          type: integer
+        toWalletId:
+          type: integer
+        amount:
+          type: number
+          minimum: 1
+        description:
+          type: string
+
+    # ── Transactions ──
+    Transaction:
+      type: object
+      required: [id, toWalletId, amount, type, status, createdAt]
+      properties:
+        id:
+          type: integer
+        fromWalletId:
+          type: ["integer", "null"]
+        toWalletId:
+          type: integer
+        amount:
+          type: number
+        type:
+          type: string
+          enum: [topup, payment, transfer]
+        status:
+          type: string
+          enum: [pending, completed, failed]
+        reference:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    # ── Routes ──
+    Route:
+      type: object
+      required: [id, name, origin, destination, fare, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        origin:
+          type: string
+        destination:
+          type: string
+        fare:
+          type: number
+          description: Standard fare in AOA
+        distanceKm:
+          type: ["number", "null"]
+        status:
+          type: string
+          enum: [active, inactive]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    RouteInput:
+      type: object
+      required: [name, origin, destination, fare]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        origin:
+          type: string
+          minLength: 1
+        destination:
+          type: string
+          minLength: 1
+        fare:
+          type: number
+          minimum: 0
+        distanceKm:
+          type: number
+
+    RouteUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        origin:
+          type: string
+        destination:
+          type: string
+        fare:
+          type: number
+          minimum: 0
+        distanceKm:
+          type: number
+        status:
+          type: string
+          enum: [active, inactive]
+
+    RouteStats:
+      type: object
+      required: [routeId, totalTrips, completedTrips, totalRevenue, totalPassengers, avgPassengersPerTrip]
+      properties:
+        routeId:
+          type: integer
+        totalTrips:
+          type: integer
+        completedTrips:
+          type: integer
+        totalRevenue:
+          type: number
+        totalPassengers:
+          type: integer
+        avgPassengersPerTrip:
+          type: number
+
+    # ── Vehicles ──
+    Vehicle:
+      type: object
+      required: [id, driverId, plate, type, capacity, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        driverId:
+          type: integer
+        plate:
+          type: string
+        type:
+          type: string
+          enum: [candongueiro, kupapata, taxi]
+        capacity:
+          type: integer
+        status:
+          type: string
+          enum: [active, inactive]
+        routeId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    VehicleInput:
+      type: object
+      required: [driverId, plate, type, capacity]
+      properties:
+        driverId:
+          type: integer
+        plate:
+          type: string
+          minLength: 1
+        type:
+          type: string
+          enum: [candongueiro, kupapata, taxi]
+        capacity:
+          type: integer
+          minimum: 1
+        routeId:
+          type: integer
+
+    VehicleUpdate:
+      type: object
+      properties:
+        plate:
+          type: string
+        type:
+          type: string
+          enum: [candongueiro, kupapata, taxi]
+        capacity:
+          type: integer
+          minimum: 1
+        status:
+          type: string
+          enum: [active, inactive]
+        routeId:
+          type: integer
+        driverId:
+          type: integer
+
+    # ── Trips ──
+    Trip:
+      type: object
+      required: [id, vehicleId, routeId, driverId, status, passengerCount, totalCollected, createdAt]
+      properties:
+        id:
+          type: integer
+        vehicleId:
+          type: integer
+        routeId:
+          type: integer
+        driverId:
+          type: integer
+        status:
+          type: string
+          enum: [active, completed, cancelled]
+        passengerCount:
+          type: integer
+        totalCollected:
+          type: number
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    TripInput:
+      type: object
+      required: [vehicleId, routeId, driverId]
+      properties:
+        vehicleId:
+          type: integer
+        routeId:
+          type: integer
+        driverId:
+          type: integer
+
+    TripUpdate:
       type: object
       properties:
         status:
           type: string
-      required:
-        - status
+          enum: [active, completed, cancelled]
 
+    TripPayment:
+      type: object
+      required: [id, tripId, passengerId, amount, status, createdAt]
+      properties:
+        id:
+          type: integer
+        tripId:
+          type: integer
+        passengerId:
+          type: integer
+        amount:
+          type: number
+        status:
+          type: string
+          enum: [pending, completed, failed]
+        transactionId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    TripPaymentInput:
+      type: object
+      required: [passengerId]
+      properties:
+        passengerId:
+          type: integer
+        amount:
+          type: number
+          description: Override fare amount (optional, uses route fare if omitted)
+
+    # ── Stats ──
+    PlatformStats:
+      type: object
+      required:
+        - totalUsers
+        - totalDrivers
+        - totalPassengers
+        - totalVehicles
+        - totalRoutes
+        - activeTrips
+        - completedTrips
+        - totalTransactions
+        - totalVolume
+        - totalWalletBalance
+      properties:
+        totalUsers:
+          type: integer
+        totalDrivers:
+          type: integer
+        totalPassengers:
+          type: integer
+        totalVehicles:
+          type: integer
+        totalRoutes:
+          type: integer
+        activeTrips:
+          type: integer
+        completedTrips:
+          type: integer
+        totalTransactions:
+          type: integer
+        totalVolume:
+          type: number
+          description: Total AOA transacted on the platform
+        totalWalletBalance:
+          type: number
+          description: Sum of all wallet balances in AOA

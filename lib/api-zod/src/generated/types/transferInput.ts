@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface TransferInput {
+  fromWalletId: number;
+  toWalletId: number;
+  /** @minimum 1 */
+  amount: number;
+  description?: string;
 }

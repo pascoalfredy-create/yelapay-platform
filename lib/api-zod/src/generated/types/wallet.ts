@@ -6,6 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface Wallet {
+  id: number;
+  userId: number;
+  /** Balance in AOA (Angolan Kwanza) */
+  balance: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
