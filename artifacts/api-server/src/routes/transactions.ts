@@ -1,12 +1,33 @@
 import { Router, type IRouter } from "express";
 import { eq, and, desc } from "drizzle-orm";
-import { db, transactionsTable, walletsTable } from "@workspace/db";
+import { db, rideTransactionsTable } from "@workspace/db";
 import {
   ListTransactionsQueryParams,
+  CreateTransactionBody,
   GetTransactionParams,
 } from "@workspace/api-zod";
 
 const router: IRouter = Router();
+
+function serializeRideTxn(t: typeof rideTransactionsTable.$inferSelect) {
+  return {
+    id: t.id,
+    reference: t.reference,
+    driver_id: t.driverId,
+    driver_name: t.driverName,
+    driver_plate: t.driverPlate,
+    passenger_id: t.passengerId,
+    amount: parseFloat(t.amount),
+    commission: t.commission != null ? parseFloat(t.commission) : null,
+    commission_rate: t.commissionRate != null ? parseFloat(t.commissionRate) : null,
+    channel: t.channel,
+    model: t.model,
+    status: t.status,
+    pax: t.pax,
+    val_per_pax: t.valPerPax != null ? parseFloat(t.valPerPax) : null,
+    created_at: t.createdAt,
+  };
+}
 
 router.get("/transactions", async (req, res): Promise<void> => {
   const query = ListTransactionsQueryParams.safeParse(req.query);
@@ -15,37 +36,69 @@ router.get("/transactions", async (req, res): Promise<void> => {
     return;
   }
 
-  const { walletId, userId, type, status, limit, offset } = query.data;
+  const { status, driverId, passengerId, channel, model, limit, offset } = query.data;
   const conditions: ReturnType<typeof eq>[] = [];
 
-  if (type) conditions.push(eq(transactionsTable.type, type));
-  if (status) conditions.push(eq(transactionsTable.status, status));
-
-  if (userId) {
-    const wallets = await db
-      .select({ id: walletsTable.id })
-      .from(walletsTable)
-      .where(eq(walletsTable.userId, userId));
-    const wid = wallets[0]?.id;
-    if (wid) conditions.push(eq(transactionsTable.toWalletId, wid));
-  } else if (walletId) {
-    conditions.push(eq(transactionsTable.toWalletId, walletId));
-  }
+  if (status) conditions.push(eq(rideTransactionsTable.status, status));
+  if (driverId) conditions.push(eq(rideTransactionsTable.driverId, driverId));
+  if (passengerId) conditions.push(eq(rideTransactionsTable.passengerId, passengerId));
+  if (channel) conditions.push(eq(rideTransactionsTable.channel, channel));
+  if (model) conditions.push(eq(rideTransactionsTable.model, model));
 
   const txns = await db
     .select()
-    .from(transactionsTable)
+    .from(rideTransactionsTable)
     .where(conditions.length > 0 ? and(...conditions) : undefined)
-    .orderBy(desc(transactionsTable.createdAt))
+    .orderBy(desc(rideTransactionsTable.createdAt))
     .limit(limit ?? 50)
     .offset(offset ?? 0);
 
-  res.json(
-    txns.map((t) => ({
-      ...t,
-      amount: parseFloat(t.amount),
-    })),
-  );
+  res.json(txns.map(serializeRideTxn));
+});
+
+router.post("/transactions", async (req, res): Promise<void> => {
+  const body = CreateTransactionBody.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: body.error.message });
+    return;
+  }
+
+  const {
+    reference,
+    driver_id,
+    driver_name,
+    driver_plate,
+    passenger_id,
+    amount,
+    commission,
+    commission_rate,
+    channel,
+    model,
+    status,
+    pax,
+    val_per_pax,
+  } = body.data;
+
+  const [created] = await db
+    .insert(rideTransactionsTable)
+    .values({
+      reference: reference ?? null,
+      driverId: driver_id ?? null,
+      driverName: driver_name ?? null,
+      driverPlate: driver_plate ?? null,
+      passengerId: passenger_id ?? null,
+      amount: String(amount),
+      commission: commission != null ? String(commission) : null,
+      commissionRate: commission_rate != null ? String(commission_rate) : null,
+      channel: channel ?? null,
+      model: model ?? null,
+      status: status ?? "pending",
+      pax: pax ?? null,
+      valPerPax: val_per_pax != null ? String(val_per_pax) : null,
+    })
+    .returning();
+
+  res.status(201).json(serializeRideTxn(created));
 });
 
 router.get("/transactions/:id", async (req, res): Promise<void> => {
@@ -57,15 +110,15 @@ router.get("/transactions/:id", async (req, res): Promise<void> => {
 
   const [txn] = await db
     .select()
-    .from(transactionsTable)
-    .where(eq(transactionsTable.id, params.data.id));
+    .from(rideTransactionsTable)
+    .where(eq(rideTransactionsTable.id, params.data.id));
 
   if (!txn) {
     res.status(404).json({ error: "Transaction not found" });
     return;
   }
 
-  res.json({ ...txn, amount: parseFloat(txn.amount) });
+  res.json(serializeRideTxn(txn));
 });
 
 export default router;

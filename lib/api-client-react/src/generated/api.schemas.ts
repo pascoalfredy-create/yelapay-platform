@@ -133,6 +133,77 @@ export interface Transaction {
   createdAt: string;
 }
 
+export type RideTransactionStatus = typeof RideTransactionStatus[keyof typeof RideTransactionStatus];
+
+
+export const RideTransactionStatus = {
+  pending: 'pending',
+  completed: 'completed',
+  failed: 'failed',
+} as const;
+
+export interface RideTransaction {
+  id: number;
+  /** @nullable */
+  reference?: string | null;
+  /** @nullable */
+  driver_id?: number | null;
+  /** @nullable */
+  driver_name?: string | null;
+  /** @nullable */
+  driver_plate?: string | null;
+  /** @nullable */
+  passenger_id?: number | null;
+  amount: number;
+  /** @nullable */
+  commission?: number | null;
+  /** @nullable */
+  commission_rate?: number | null;
+  /** @nullable */
+  channel?: string | null;
+  /** @nullable */
+  model?: string | null;
+  status: RideTransactionStatus;
+  /** @nullable */
+  pax?: number | null;
+  /** @nullable */
+  val_per_pax?: number | null;
+  created_at?: string;
+}
+
+export type RideTransactionInputStatus = typeof RideTransactionInputStatus[keyof typeof RideTransactionInputStatus];
+
+
+export const RideTransactionInputStatus = {
+  pending: 'pending',
+  completed: 'completed',
+  failed: 'failed',
+} as const;
+
+export interface RideTransactionInput {
+  reference?: string;
+  driver_id?: number;
+  driver_name?: string;
+  driver_plate?: string;
+  passenger_id?: number;
+  /** @minimum 0 */
+  amount: number;
+  /** @minimum 0 */
+  commission?: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  commission_rate?: number;
+  channel?: string;
+  model?: string;
+  status?: RideTransactionInputStatus;
+  /** @minimum 1 */
+  pax?: number;
+  /** @minimum 0 */
+  val_per_pax?: number;
+}
+
 export type RouteStatus = typeof RouteStatus[keyof typeof RouteStatus];
 
 
@@ -413,22 +484,14 @@ export const ListUsersStatus = {
 } as const;
 
 export type ListTransactionsParams = {
-walletId?: number;
-userId?: number;
-type?: ListTransactionsType;
 status?: ListTransactionsStatus;
+driverId?: number;
+passengerId?: number;
+channel?: string;
+model?: string;
 limit?: number;
 offset?: number;
 };
-
-export type ListTransactionsType = typeof ListTransactionsType[keyof typeof ListTransactionsType];
-
-
-export const ListTransactionsType = {
-  topup: 'topup',
-  payment: 'payment',
-  transfer: 'transfer',
-} as const;
 
 export type ListTransactionsStatus = typeof ListTransactionsStatus[keyof typeof ListTransactionsStatus];
 

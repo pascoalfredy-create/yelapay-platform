@@ -1,6 +1,7 @@
 export * from "./users";
 export * from "./wallets";
 export * from "./transactions";
+export * from "./ride-transactions";
 export * from "./routes";
 export * from "./vehicles";
 export * from "./trips";

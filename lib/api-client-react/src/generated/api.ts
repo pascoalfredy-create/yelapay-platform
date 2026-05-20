@@ -30,6 +30,8 @@ import type {
   ListVehiclesParams,
   LoginInput,
   PlatformStats,
+  RideTransaction,
+  RideTransactionInput,
   Route,
   RouteInput,
   RouteStats,
@@ -1043,11 +1045,11 @@ export const getListTransactionsUrl = (params?: ListTransactionsParams,) => {
 }
 
 /**
- * @summary List transactions (filterable)
+ * @summary List all ride transactions
  */
-export const listTransactions = async (params?: ListTransactionsParams, options?: RequestInit): Promise<Transaction[]> => {
+export const listTransactions = async (params?: ListTransactionsParams, options?: RequestInit): Promise<RideTransaction[]> => {
 
-  return customFetch<Transaction[]>(getListTransactionsUrl(params),
+  return customFetch<RideTransaction[]>(getListTransactionsUrl(params),
   {
     ...options,
     method: 'GET'
@@ -1090,7 +1092,7 @@ export type ListTransactionsQueryError = ErrorType<unknown>
 
 
 /**
- * @summary List transactions (filterable)
+ * @summary List all ride transactions
  */
 
 export function useListTransactions<TData = Awaited<ReturnType<typeof listTransactions>>, TError = ErrorType<unknown>>(
@@ -1111,6 +1113,77 @@ export function useListTransactions<TData = Awaited<ReturnType<typeof listTransa
 
 
 
+export const getCreateTransactionUrl = () => {
+
+
+
+
+  return `/api/transactions`
+}
+
+/**
+ * @summary Create a new ride transaction
+ */
+export const createTransaction = async (rideTransactionInput: RideTransactionInput, options?: RequestInit): Promise<RideTransaction> => {
+
+  return customFetch<RideTransaction>(getCreateTransactionUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      rideTransactionInput,)
+  }
+);}
+
+
+
+
+export const getCreateTransactionMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTransaction>>, TError,{data: BodyType<RideTransactionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createTransaction>>, TError,{data: BodyType<RideTransactionInput>}, TContext> => {
+
+const mutationKey = ['createTransaction'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createTransaction>>, {data: BodyType<RideTransactionInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createTransaction(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateTransactionMutationResult = NonNullable<Awaited<ReturnType<typeof createTransaction>>>
+    export type CreateTransactionMutationBody = BodyType<RideTransactionInput>
+    export type CreateTransactionMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Create a new ride transaction
+ */
+export const useCreateTransaction = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTransaction>>, TError,{data: BodyType<RideTransactionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createTransaction>>,
+        TError,
+        {data: BodyType<RideTransactionInput>},
+        TContext
+      > => {
+      return useMutation(getCreateTransactionMutationOptions(options));
+    }
+
 export const getGetTransactionUrl = (id: number,) => {
 
 
@@ -1120,11 +1193,11 @@ export const getGetTransactionUrl = (id: number,) => {
 }
 
 /**
- * @summary Get a transaction by ID
+ * @summary Get a ride transaction by ID
  */
-export const getTransaction = async (id: number, options?: RequestInit): Promise<Transaction> => {
+export const getTransaction = async (id: number, options?: RequestInit): Promise<RideTransaction> => {
 
-  return customFetch<Transaction>(getGetTransactionUrl(id),
+  return customFetch<RideTransaction>(getGetTransactionUrl(id),
   {
     ...options,
     method: 'GET'
@@ -1167,7 +1240,7 @@ export type GetTransactionQueryError = ErrorType<ErrorResponse>
 
 
 /**
- * @summary Get a transaction by ID
+ * @summary Get a ride transaction by ID
  */
 
 export function useGetTransaction<TData = Awaited<ReturnType<typeof getTransaction>>, TError = ErrorType<ErrorResponse>>(

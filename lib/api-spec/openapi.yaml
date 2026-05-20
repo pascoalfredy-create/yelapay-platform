@@ -375,26 +375,29 @@ paths:
     get:
       operationId: listTransactions
       tags: [transactions]
-      summary: List transactions (filterable)
+      summary: List all ride transactions
       parameters:
-        - in: query
-          name: walletId
-          schema:
-            type: integer
-        - in: query
-          name: userId
-          schema:
-            type: integer
-        - in: query
-          name: type
-          schema:
-            type: string
-            enum: [topup, payment, transfer]
         - in: query
           name: status
           schema:
             type: string
             enum: [pending, completed, failed]
+        - in: query
+          name: driverId
+          schema:
+            type: integer
+        - in: query
+          name: passengerId
+          schema:
+            type: integer
+        - in: query
+          name: channel
+          schema:
+            type: string
+        - in: query
+          name: model
+          schema:
+            type: string
         - in: query
           name: limit
           schema:
@@ -407,19 +410,42 @@ paths:
             default: 0
       responses:
         "200":
-          description: List of transactions
+          description: List of ride transactions
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Transaction"
+                  $ref: "#/components/schemas/RideTransaction"
+    post:
+      operationId: createTransaction
+      tags: [transactions]
+      summary: Create a new ride transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RideTransactionInput"
+      responses:
+        "201":
+          description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RideTransaction"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /transactions/{id}:
     get:
       operationId: getTransaction
       tags: [transactions]
-      summary: Get a transaction by ID
+      summary: Get a ride transaction by ID
       parameters:
         - $ref: "#/components/parameters/IdParam"
       responses:
@@ -428,7 +454,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Transaction"
+                $ref: "#/components/schemas/RideTransaction"
         "404":
           description: Not found
           content:
@@ -1021,6 +1047,82 @@ components:
         createdAt:
           type: string
           format: date-time
+
+    RideTransaction:
+      type: object
+      required: [id, amount, status, createdAt]
+      properties:
+        id:
+          type: integer
+        reference:
+          type: ["string", "null"]
+        driver_id:
+          type: ["integer", "null"]
+        driver_name:
+          type: ["string", "null"]
+        driver_plate:
+          type: ["string", "null"]
+        passenger_id:
+          type: ["integer", "null"]
+        amount:
+          type: number
+        commission:
+          type: ["number", "null"]
+        commission_rate:
+          type: ["number", "null"]
+        channel:
+          type: ["string", "null"]
+        model:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, completed, failed]
+        pax:
+          type: ["integer", "null"]
+        val_per_pax:
+          type: ["number", "null"]
+        created_at:
+          type: string
+          format: date-time
+
+    RideTransactionInput:
+      type: object
+      required: [amount]
+      properties:
+        reference:
+          type: string
+        driver_id:
+          type: integer
+        driver_name:
+          type: string
+        driver_plate:
+          type: string
+        passenger_id:
+          type: integer
+        amount:
+          type: number
+          minimum: 0
+        commission:
+          type: number
+          minimum: 0
+        commission_rate:
+          type: number
+          minimum: 0
+          maximum: 1
+        channel:
+          type: string
+        model:
+          type: string
+        status:
+          type: string
+          enum: [pending, completed, failed]
+          default: pending
+        pax:
+          type: integer
+          minimum: 1
+        val_per_pax:
+          type: number
+          minimum: 0
 
     # ── Routes ──
     Route:

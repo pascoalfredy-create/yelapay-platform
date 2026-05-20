@@ -276,36 +276,75 @@ export const TransferFundsResponse = zod.object({
 
 
 /**
- * @summary List transactions (filterable)
+ * @summary List all ride transactions
  */
 export const listTransactionsQueryLimitDefault = 50;
 export const listTransactionsQueryOffsetDefault = 0;
 
 export const ListTransactionsQueryParams = zod.object({
-  "walletId": zod.coerce.number().optional(),
-  "userId": zod.coerce.number().optional(),
-  "type": zod.enum(['topup', 'payment', 'transfer']).optional(),
   "status": zod.enum(['pending', 'completed', 'failed']).optional(),
+  "driverId": zod.coerce.number().optional(),
+  "passengerId": zod.coerce.number().optional(),
+  "channel": zod.coerce.string().optional(),
+  "model": zod.coerce.string().optional(),
   "limit": zod.coerce.number().default(listTransactionsQueryLimitDefault),
   "offset": zod.coerce.number().default(listTransactionsQueryOffsetDefault)
 })
 
 export const ListTransactionsResponseItem = zod.object({
   "id": zod.number(),
-  "fromWalletId": zod.number().nullish(),
-  "toWalletId": zod.number(),
-  "amount": zod.number(),
-  "type": zod.enum(['topup', 'payment', 'transfer']),
-  "status": zod.enum(['pending', 'completed', 'failed']),
   "reference": zod.string().nullish(),
-  "description": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
+  "driver_id": zod.number().nullish(),
+  "driver_name": zod.string().nullish(),
+  "driver_plate": zod.string().nullish(),
+  "passenger_id": zod.number().nullish(),
+  "amount": zod.number(),
+  "commission": zod.number().nullish(),
+  "commission_rate": zod.number().nullish(),
+  "channel": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "status": zod.enum(['pending', 'completed', 'failed']),
+  "pax": zod.number().nullish(),
+  "val_per_pax": zod.number().nullish(),
+  "created_at": zod.coerce.date().optional()
 })
 export const ListTransactionsResponse = zod.array(ListTransactionsResponseItem)
 
 
 /**
- * @summary Get a transaction by ID
+ * @summary Create a new ride transaction
+ */
+export const createTransactionBodyAmountMin = 0;
+
+export const createTransactionBodyCommissionMin = 0;
+
+export const createTransactionBodyCommissionRateMin = 0;
+export const createTransactionBodyCommissionRateMax = 1;
+
+export const createTransactionBodyStatusDefault = `pending`;
+export const createTransactionBodyValPerPaxMin = 0;
+
+
+
+export const CreateTransactionBody = zod.object({
+  "reference": zod.string().optional(),
+  "driver_id": zod.number().optional(),
+  "driver_name": zod.string().optional(),
+  "driver_plate": zod.string().optional(),
+  "passenger_id": zod.number().optional(),
+  "amount": zod.number().min(createTransactionBodyAmountMin),
+  "commission": zod.number().min(createTransactionBodyCommissionMin).optional(),
+  "commission_rate": zod.number().min(createTransactionBodyCommissionRateMin).max(createTransactionBodyCommissionRateMax).optional(),
+  "channel": zod.string().optional(),
+  "model": zod.string().optional(),
+  "status": zod.enum(['pending', 'completed', 'failed']).default(createTransactionBodyStatusDefault),
+  "pax": zod.number().min(1).optional(),
+  "val_per_pax": zod.number().min(createTransactionBodyValPerPaxMin).optional()
+})
+
+
+/**
+ * @summary Get a ride transaction by ID
  */
 export const GetTransactionParams = zod.object({
   "id": zod.coerce.number()
@@ -313,14 +352,20 @@ export const GetTransactionParams = zod.object({
 
 export const GetTransactionResponse = zod.object({
   "id": zod.number(),
-  "fromWalletId": zod.number().nullish(),
-  "toWalletId": zod.number(),
-  "amount": zod.number(),
-  "type": zod.enum(['topup', 'payment', 'transfer']),
-  "status": zod.enum(['pending', 'completed', 'failed']),
   "reference": zod.string().nullish(),
-  "description": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
+  "driver_id": zod.number().nullish(),
+  "driver_name": zod.string().nullish(),
+  "driver_plate": zod.string().nullish(),
+  "passenger_id": zod.number().nullish(),
+  "amount": zod.number(),
+  "commission": zod.number().nullish(),
+  "commission_rate": zod.number().nullish(),
+  "channel": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "status": zod.enum(['pending', 'completed', 'failed']),
+  "pax": zod.number().nullish(),
+  "val_per_pax": zod.number().nullish(),
+  "created_at": zod.coerce.date().optional()
 })
 
 

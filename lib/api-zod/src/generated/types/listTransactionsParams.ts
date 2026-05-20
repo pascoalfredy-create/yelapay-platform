@@ -6,13 +6,13 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { ListTransactionsStatus } from './listTransactionsStatus';
-import type { ListTransactionsType } from './listTransactionsType';
 
 export type ListTransactionsParams = {
-walletId?: number;
-userId?: number;
-type?: ListTransactionsType;
 status?: ListTransactionsStatus;
+driverId?: number;
+passengerId?: number;
+channel?: string;
+model?: string;
 limit?: number;
 offset?: number;
 };
