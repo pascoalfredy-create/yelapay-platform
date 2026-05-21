@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YelaPay+ · Dashboard Proprietário</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0B1F3A;--navy2:#152E52;--navy3:#1A2D4A;
+  --green:#1A7F5A;--green2:#27C49A;--green-bg:rgba(39,196,154,0.1);
+  --gold:#C9A84C;--gold-bg:rgba(201,168,76,0.1);
+  --red:#E24B4A;--red-bg:rgba(226,75,74,0.1);
+  --blue:#3B82F6;--blue-bg:rgba(59,130,246,0.1);
+  --purple:#8B5CF6;--purple-bg:rgba(139,92,246,0.1);
+  --text:#E8EFF6;--text2:#8BA5C0;--text3:#4A6580;
+  --border:rgba(255,255,255,0.07);--surface:rgba(255,255,255,0.04);
+  --sidebar:220px;
+}
+html,body{height:100%;background:#060F1C;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;}
+
+/* ── LOGIN ── */
+#login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#060F1C,#0B1F3A);display:flex;align-items:center;justify-content:center;z-index:1000;}
+#login-screen.hidden{display:none;}
+.login-box{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:20px;padding:36px;width:100%;max-width:380px;text-align:center;}
+.login-logo{width:60px;height:60px;border-radius:18px;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;}
+.login-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px;}
+.login-title span{color:var(--green2);}
+.login-sub{font-size:12px;color:var(--text2);margin-bottom:28px;}
+.login-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:11px;padding:13px 16px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;margin-bottom:12px;transition:border-color 0.2s;}
+.login-input:focus{border-color:var(--green2);}
+.login-input::placeholder{color:var(--text3);}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--green),#16A870);border:none;border-radius:11px;color:#fff;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
+.login-hint{font-size:11px;color:var(--text3);margin-top:14px;}
+.login-hint strong{color:var(--green2);}
+
+/* ── LAYOUT ── */
+#app{display:flex;height:100vh;overflow:hidden;}
+#app.hidden{display:none;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:#070E1A;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.sidebar::-webkit-scrollbar{display:none;}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border);}
+.sidebar-logo-mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px;}
+.sidebar-logo h2{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;}
+.sidebar-logo h2 span{color:var(--green2);}
+.sidebar-logo small{font-size:10px;color:var(--text3);display:block;margin-top:2px;}
+.sidebar-nav{padding:16px 10px;flex:1;}
+.nav-section{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);padding:0 10px;margin:16px 0 6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;transition:all 0.15s;margin-bottom:2px;}
+.nav-item:hover{background:var(--surface);color:var(--text);}
+.nav-item.active{background:var(--green-bg);color:var(--green2);}
+.nav-item svg{width:16px;height:16px;flex-shrink:0;}
+.sidebar-footer{padding:16px;border-top:1px solid var(--border);}
+.user-card{display:flex;align-items:center;gap:10px;}
+.user-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:12px;flex-shrink:0;}
+.user-info strong{display:block;font-size:12px;color:var(--text);}
+.user-info small{font-size:10px;color:var(--text3);}
+.logout-btn{margin-top:10px;width:100%;padding:9px;background:var(--red-bg);border:1px solid rgba(226,75,74,0.15);border-radius:9px;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{background:#070E1A;border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.topbar-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.date-badge{font-size:11px;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 12px;}
+.refresh-btn{padding:7px 14px;background:var(--green-bg);border:1px solid rgba(39,196,154,0.2);border-radius:8px;color:var(--green2);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+/* PERIOD TABS */
+.period-tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;}
+.period-tab{padding:6px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2);border:none;background:none;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.period-tab.active{background:var(--green);color:#fff;}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:24px;}
+.content::-webkit-scrollbar{width:4px;}
+.content::-webkit-scrollbar-track{background:transparent;}
+.content::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* CARDS */
+.cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.card{background:var(--navy3);border:1px solid var(--border);border-radius:14px;padding:18px;}
+.card-label{font-size:10px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.card-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.card-value{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1;margin-bottom:6px;}
+.card-trend{font-size:11px;display:flex;align-items:center;gap:4px;}
+.trend-up{color:var(--green2);}
+.trend-down{color:var(--red);}
+
+/* TABLES */
+.table-card{background:var(--navy3);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;}
+.table-hdr{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.table-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+.table-badge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.badge-green{background:var(--green-bg);color:var(--green2);}
+.badge-gold{background:var(--gold-bg);color:var(--gold);}
+.badge-red{background:var(--red-bg);color:var(--red);}
+.badge-blue{background:var(--blue-bg);color:var(--blue);}
+table{width:100%;border-collapse:collapse;}
+th{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);padding:10px 20px;text-align:left;background:rgba(0,0,0,0.2);border-bottom:1px solid var(--border);}
+td{padding:12px 20px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+.td-main{color:var(--text);font-weight:500;}
+.td-mono{font-family:'JetBrains Mono',monospace;font-size:12px;}
+.td-green{color:var(--green2);font-family:'Syne',sans-serif;font-weight:700;}
+.td-red{color:var(--red);font-family:'Syne',sans-serif;font-weight:700;}
+.td-gold{color:var(--gold);font-family:'Syne',sans-serif;font-weight:700;}
+
+/* STATUS PILLS */
+.status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.status-dot{width:5px;height:5px;border-radius:50%;}
+.s-active{background:var(--green-bg);color:var(--green2);}
+.s-active .status-dot{background:var(--green2);}
+.s-pending{background:var(--gold-bg);color:var(--gold);}
+.s-pending .status-dot{background:var(--gold);}
+.s-paid{background:var(--blue-bg);color:var(--blue);}
+.s-paid .status-dot{background:var(--blue);}
+.s-inactive{background:var(--surface);color:var(--text3);}
+.s-inactive .status-dot{background:var(--text3);}
+
+/* CHARTS */
+.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:20px;}
+.chart-card{background:var(--navy3);border:1px solid var(--border);border-radius:14px;padding:18px;}
+.chart-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:16px;}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:120px;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.bar{width:100%;border-radius:5px 5px 0 0;background:linear-gradient(180deg,var(--green2),var(--green));min-height:4px;transition:height 0.5s;}
+.bar-label{font-size:10px;color:var(--text3);}
+.bar-val{font-size:10px;color:var(--green2);font-weight:600;}
+.donut-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:140px;gap:16px;}
+.donut{position:relative;width:100px;height:100px;}
+.donut svg{transform:rotate(-90deg);}
+.donut-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.donut-label strong{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--green2);}
+.donut-label small{font-size:10px;color:var(--text3);}
+.donut-legend{display:flex;flex-direction:column;gap:6px;width:100%;}
+.legend-item{display:flex;align-items:center;justify-content:space-between;font-size:11px;}
+.legend-dot{width:8px;height:8px;border-radius:50%;margin-right:6px;flex-shrink:0;}
+
+/* ROTAS */
+.route-item{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);}
+.route-item:last-child{border-bottom:none;}
+.route-rank{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--text3);width:24px;flex-shrink:0;text-align:center;}
+.route-rank.top{color:var(--gold);}
+.route-info{flex:1;}
+.route-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;}
+.route-sub{font-size:11px;color:var(--text2);}
+.route-bar-wrap{width:120px;}
+.route-bar-bg{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
+.route-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--green),var(--green2));}
+.route-amt{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--green2);width:80px;text-align:right;flex-shrink:0;}
+
+/* LIQUIDAÇÕES */
+.liq-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.liq-card{background:var(--navy3);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;}
+.liq-card-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px;}
+.liq-card-lbl{font-size:11px;color:var(--text2);}
+.pay-btn{padding:7px 16px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.pay-btn-green{background:var(--green-bg);color:var(--green2);border:1px solid rgba(39,196,154,0.2);}
+.pay-btn-gold{background:var(--gold-bg);color:var(--gold);border:1px solid rgba(201,168,76,0.2);}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.cards-grid{grid-template-columns:repeat(2,1fr);}.chart-grid{grid-template-columns:1fr;}}
+@media(max-width:768px){
+  .sidebar{width:60px;}
+  .sidebar-logo h2,.sidebar-logo small,.nav-item span,.user-info,.nav-section{display:none;}
+  .nav-item{justify-content:center;padding:10px;}
+  .cards-grid{grid-template-columns:repeat(2,1fr);}
+}
+
+/* ── ALERTAS ── */
+.alert-card{background:var(--navy3);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px;}
+.alert-card.critical{border-left:3px solid var(--red);}
+.alert-card.warning{border-left:3px solid var(--gold);}
+.alert-card.info{border-left:3px solid var(--blue);}
+.alert-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.alert-icon.critical{background:var(--red-bg);}
+.alert-icon.warning{background:var(--gold-bg);}
+.alert-icon.info{background:var(--blue-bg);}
+.alert-info{flex:1;}
+.alert-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.alert-sub{font-size:11px;color:var(--text2);line-height:1.5;}
+.alert-time{font-size:10px;color:var(--text3);margin-top:4px;}
+.alert-action{padding:6px 14px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;flex-shrink:0;align-self:center;}
+.aa-red{background:var(--red-bg);color:var(--red);}
+.aa-gold{background:var(--gold-bg);color:var(--gold);}
+.aa-blue{background:var(--blue-bg);color:var(--blue);}
+.alert-empty{padding:40px;text-align:center;color:var(--text3);font-size:13px;}
+
+/* ── GESTÃO UTILIZADORES ── */
+.mgmt-actions{display:flex;gap:8px;}
+.mgmt-btn{padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;}
+.mgmt-suspend{background:var(--red-bg);color:var(--red);}
+.mgmt-activate{background:var(--green-bg);color:var(--green2);}
+.mgmt-reset{background:var(--blue-bg);color:var(--blue);}
+.mgmt-view{background:var(--surface);color:var(--text2);}
+.search-bar{display:flex;gap:10px;margin-bottom:16px;}
+.search-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;}
+.search-input:focus{border-color:var(--green2);}
+.search-input::placeholder{color:var(--text3);}
+.filter-select{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--text2);font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;}
+
+/* ── EXPORT MODAL ── */
+.export-modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:800;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.export-modal.show{display:flex;}
+.export-box{background:#0D1A28;border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:420px;}
+.export-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px;}
+.export-sub{font-size:12px;color:var(--text2);margin-bottom:20px;}
+.export-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.export-opt{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all 0.15s;}
+.export-opt:hover{border-color:var(--green2);background:var(--green-bg);}
+.export-opt-icon{font-size:28px;margin-bottom:6px;}
+.export-opt-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text);}
+.export-opt-sub{font-size:10px;color:var(--text2);margin-top:2px;}
+.export-period{margin-bottom:20px;}
+.export-period-lbl{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);margin-bottom:10px;display:block;}
+.export-period-opts{display:flex;gap:6px;}
+.ep-opt{flex:1;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;color:var(--text2);transition:all 0.15s;}
+.ep-opt.active{background:var(--green-bg);border-color:rgba(39,196,154,0.3);color:var(--green2);}
+.export-close{width:100%;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;}
+
+/* DRIVER DETAIL MODAL */
+.driver-modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:800;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.driver-modal.show{display:flex;}
+.driver-box{background:#0D1A28;border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:460px;}
+
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">📊</div>
+    <div class="login-title">Yela<span>Pay+</span></div>
+    <div class="login-sub">Dashboard do Proprietário · Acesso restrito</div>
+    <input class="login-input" type="text" id="login-user" placeholder="Utilizador" value="admin">
+    <input class="login-input" type="password" id="login-pass" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Entrar no Dashboard</button>
+    <p class="login-hint">Demo: utilizador <strong>admin</strong> · password <strong>yelapay2026</strong></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-mark">💚</div>
+      <h2>Yela<span>Pay+</span></h2>
+      <small>Painel do Proprietário</small>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Principal</div>
+      <div class="nav-item active" onclick="goPage('overview')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span>Visão geral</span>
+      </div>
+      <div class="nav-item" onclick="goPage('revenue')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span>Receitas</span>
+      </div>
+      <div class="nav-item" onclick="goPage('commissions')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        <span>Comissões YelaPay+</span>
+      </div>
+      <div class="nav-section">Frota</div>
+      <div class="nav-item" onclick="goPage('drivers')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Motoristas</span>
+      </div>
+      <div class="nav-item" onclick="goPage('vehicles')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <span>Veículos</span>
+      </div>
+      <div class="nav-item" onclick="goPage('routes')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        <span>Rotas</span>
+      </div>
+      <div class="nav-section">Financeiro</div>
+      <div class="nav-item" onclick="goPage('settlements')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        <span>Liquidações</span>
+      </div>
+      <div class="nav-section">Operações</div>
+      <div class="nav-item" onclick="goPage('alerts')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span>Alertas</span>
+      </div>
+      <div class="nav-item" onclick="goPage('management')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Gestão</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-av">PF</div>
+        <div class="user-info">
+          <strong>Pascoal Frederico</strong>
+          <small>Proprietário · Admin</small>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Terminar sessão</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="page-title">Visão Geral</div>
+      <div class="topbar-right">
+        <div class="period-tabs">
+          <button class="period-tab active" onclick="setPeriod('day',this)">Hoje</button>
+          <button class="period-tab" onclick="setPeriod('week',this)">Semana</button>
+          <button class="period-tab" onclick="setPeriod('month',this)">Mês</button>
+        </div>
+        <div class="date-badge" id="date-badge">—</div>
+        <button class="refresh-btn" onclick="openExportModal()" style="background:var(--gold-bg);color:var(--gold);border:1px solid rgba(201,168,76,0.2);">⬇ Exportar</button>
+        <button class="refresh-btn" onclick="refreshData()">↻ Actualizar</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ══ VISÃO GERAL ══ -->
+      <div class="page active" id="page-overview">
+        <div class="cards-grid">
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--green-bg)">💰</div>Receita da frota</div>
+            <div class="card-value" id="ov-revenue" style="color:var(--green2)">0 AKZ</div>
+            <div class="card-trend trend-up" id="ov-revenue-trend">↑ A carregar...</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--gold-bg)">⚡</div>Comissões YelaPay+</div>
+            <div class="card-value" id="ov-commission" style="color:var(--gold)">0 AKZ</div>
+            <div class="card-trend trend-up" id="ov-commission-trend">↑ A nossa receita</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--blue-bg)">👥</div>Passageiros</div>
+            <div class="card-value" id="ov-passengers" style="color:var(--blue)">0</div>
+            <div class="card-trend" id="ov-passengers-trend" style="color:var(--text2)">Total do período</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--purple-bg)">🔄</div>Transacções</div>
+            <div class="card-value" id="ov-txns" style="color:var(--purple)">0</div>
+            <div class="card-trend" id="ov-txns-trend" style="color:var(--text2)">QR + Manual</div>
+          </div>
+        </div>
+
+        <div class="chart-grid">
+          <div class="chart-card">
+            <div class="chart-title">Receita por dia (últimos 7 dias)</div>
+            <div class="bar-chart" id="bar-chart"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Canal de pagamento</div>
+            <div class="donut-wrap">
+              <div class="donut">
+                <svg width="100" height="100" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="35" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
+                  <circle cx="50" cy="50" r="35" fill="none" stroke="var(--green2)" stroke-width="12" stroke-dasharray="154 66" id="donut-qr"/>
+                  <circle cx="50" cy="50" r="35" fill="none" stroke="var(--gold)" stroke-width="12" stroke-dasharray="66 154" stroke-dashoffset="-154" id="donut-manual"/>
+                </svg>
+                <div class="donut-label"><strong id="donut-pct">70%</strong><small>QR Code</small></div>
+              </div>
+              <div class="donut-legend" style="padding:0 8px;">
+                <div class="legend-item"><div style="display:flex;align-items:center;"><div class="legend-dot" style="background:var(--green2)"></div>QR Code</div><span id="leg-qr" style="color:var(--green2);font-weight:600;">70%</span></div>
+                <div class="legend-item"><div style="display:flex;align-items:center;"><div class="legend-dot" style="background:var(--gold)"></div>Manual</div><span id="leg-manual" style="color:var(--gold);font-weight:600;">30%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top motoristas resumo -->
+        <div class="table-card">
+          <div class="table-hdr">
+            <div class="table-title">Top motoristas</div>
+            <span class="table-badge badge-green">Período seleccionado</span>
+          </div>
+          <table>
+            <thead><tr><th>Motorista</th><th>Matrícula</th><th>Passageiros</th><th>Receita</th><th>Comissão YP+</th><th>Estado</th></tr></thead>
+            <tbody id="top-drivers-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ RECEITAS ══ -->
+      <div class="page" id="page-revenue">
+        <div class="cards-grid">
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--green-bg)">💰</div>Receita bruta</div>
+            <div class="card-value" id="rev-gross" style="color:var(--green2)">0 AKZ</div>
+            <div class="card-trend trend-up">Total cobrado aos passageiros</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--gold-bg)">⚡</div>Comissões (1,5%)</div>
+            <div class="card-value" id="rev-comm" style="color:var(--gold)">0 AKZ</div>
+            <div class="card-trend trend-up">Receita YelaPay+</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--blue-bg)">🏦</div>Líquido motoristas</div>
+            <div class="card-value" id="rev-net" style="color:var(--blue)">0 AKZ</div>
+            <div class="card-trend" style="color:var(--text2)">Após comissão YelaPay+</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--purple-bg)">📈</div>Taxa de comissão</div>
+            <div class="card-value" style="color:var(--purple)">1,5%</div>
+            <div class="card-trend" style="color:var(--text2)">B2C · Por transacção</div>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-hdr">
+            <div class="table-title">Todas as transacções</div>
+            <span class="table-badge badge-green" id="txn-count-badge">0 transacções</span>
+          </div>
+          <table>
+            <thead><tr><th>Referência</th><th>Motorista</th><th>Passageiros</th><th>Valor bruto</th><th>Comissão YP+</th><th>Líquido motorista</th><th>Canal</th><th>Data/Hora</th></tr></thead>
+            <tbody id="all-txns-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ COMISSÕES ══ -->
+      <div class="page" id="page-commissions">
+        <div class="cards-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--gold-bg)">⚡</div>Comissões geradas</div>
+            <div class="card-value" id="comm-total" style="color:var(--gold)">0 AKZ</div>
+            <div class="card-trend trend-up">Receita YelaPay+</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--green-bg)">📊</div>Taxa média efectiva</div>
+            <div class="card-value" style="color:var(--green2)">1,5%</div>
+            <div class="card-trend" style="color:var(--text2)">Modelo B2C standard</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--blue-bg)">🔄</div>Transacções cobradas</div>
+            <div class="card-value" id="comm-txns" style="color:var(--blue)">0</div>
+            <div class="card-trend" style="color:var(--text2)">Com comissão aplicada</div>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-hdr">
+            <div class="table-title">Comissões por motorista</div>
+            <span class="table-badge badge-gold">Receita YelaPay+</span>
+          </div>
+          <table>
+            <thead><tr><th>Motorista</th><th>Matrícula</th><th>Transacções</th><th>Volume gerado</th><th>Comissão (1,5%)</th><th>% do total</th></tr></thead>
+            <tbody id="comm-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ MOTORISTAS ══ -->
+      <div class="page" id="page-drivers">
+        <div class="cards-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--green-bg)">✅</div>Motoristas activos</div>
+            <div class="card-value" id="dr-active" style="color:var(--green2)">0</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--gold-bg)">📋</div>Total registados</div>
+            <div class="card-value" id="dr-total" style="color:var(--gold)">0</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--blue-bg)">🏆</div>Melhor motorista</div>
+            <div class="card-value" id="dr-best" style="color:var(--blue);font-size:16px;">—</div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-hdr">
+            <div class="table-title">Todos os motoristas</div>
+            <span class="table-badge badge-green">Frota YelaPay+</span>
+          </div>
+          <table>
+            <thead><tr><th>Nome</th><th>Matrícula</th><th>Tipo</th><th>Passageiros</th><th>Receita total</th><th>Último pagamento</th><th>Estado</th></tr></thead>
+            <tbody id="drivers-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ VEÍCULOS ══ -->
+      <div class="page" id="page-vehicles">
+        <div class="cards-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--green-bg)">🚗</div>Carros</div>
+            <div class="card-value" id="veh-cars" style="color:var(--green2)">0</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--gold-bg)">🏍️</div>Motorizadas</div>
+            <div class="card-value" id="veh-motos" style="color:var(--gold)">0</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--blue-bg)">📊</div>Total frota</div>
+            <div class="card-value" id="veh-total" style="color:var(--blue)">0</div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-hdr">
+            <div class="table-title">Frota registada</div>
+            <span class="table-badge badge-blue">Veículos YelaPay+</span>
+          </div>
+          <table>
+            <thead><tr><th>Matrícula</th><th>Tipo</th><th>Motorista</th><th>Rota habitual</th><th>Transacções</th><th>Receita gerada</th><th>Estado</th></tr></thead>
+            <tbody id="vehicles-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ ROTAS ══ -->
+      <div class="page" id="page-routes">
+        <div class="cards-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--green-bg)">🗺️</div>Rotas activas</div>
+            <div class="card-value" style="color:var(--green2)">6</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--gold-bg)">🏆</div>Rota mais lucrativa</div>
+            <div class="card-value" style="color:var(--gold);font-size:14px;">Luanda→Cacuaco</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--blue-bg)">💰</div>Tarifa média</div>
+            <div class="card-value" style="color:var(--blue)">300 AKZ</div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-hdr">
+            <div class="table-title">Rotas por rentabilidade</div>
+            <span class="table-badge badge-gold">Ordenado por receita</span>
+          </div>
+          <div id="routes-list"></div>
+        </div>
+      </div>
+
+      <!-- ══ LIQUIDAÇÕES ══ -->
+      <div class="page" id="page-settlements">
+        <div class="liq-summary">
+          <div class="liq-card">
+            <div class="liq-card-val" style="color:var(--red)" id="liq-pending-amt">0 AKZ</div>
+            <div class="liq-card-lbl">Pendente de liquidação</div>
+          </div>
+          <div class="liq-card">
+            <div class="liq-card-val" style="color:var(--green2)" id="liq-paid-amt">0 AKZ</div>
+            <div class="liq-card-lbl">Liquidado este mês</div>
+          </div>
+          <div class="liq-card">
+            <div class="liq-card-val" style="color:var(--blue)" id="liq-count">0</div>
+            <div class="liq-card-lbl">Motoristas a liquidar</div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-hdr">
+            <div class="table-title">Liquidações por motorista</div>
+            <span class="table-badge badge-red">Pendentes primeiro</span>
+          </div>
+          <table>
+            <thead><tr><th>Motorista</th><th>Matrícula</th><th>Período</th><th>Volume</th><th>Comissão YP+</th><th>A liquidar</th><th>Banco</th><th>Estado</th><th>Acção</th></tr></thead>
+            <tbody id="settlements-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+
+      <!-- ══ ALERTAS ══ -->
+      <div class="page" id="page-alerts">
+        <div class="cards-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--red-bg)">🚨</div>Críticos</div>
+            <div class="card-value" id="alerts-critical" style="color:var(--red)">0</div>
+            <div class="card-trend" style="color:var(--text2)">Requerem atenção imediata</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--gold-bg)">⚠️</div>Avisos</div>
+            <div class="card-value" id="alerts-warning" style="color:var(--gold)">0</div>
+            <div class="card-trend" style="color:var(--text2)">Monitorizar</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--green-bg)">✅</div>Sistema</div>
+            <div class="card-value" style="color:var(--green2)">Online</div>
+            <div class="card-trend trend-up">API · Base de dados · App</div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-hdr">
+            <div class="table-title">Alertas activos</div>
+            <button class="refresh-btn" onclick="renderAlerts()">↻ Verificar</button>
+          </div>
+          <div id="alerts-list" style="padding:14px;"></div>
+        </div>
+      </div>
+
+      <!-- ══ GESTÃO ══ -->
+      <div class="page" id="page-management">
+        <div class="cards-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--green-bg)">✅</div>Activos</div>
+            <div class="card-value" id="mgmt-active" style="color:var(--green2)">0</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--red-bg)">🚫</div>Suspensos</div>
+            <div class="card-value" id="mgmt-suspended" style="color:var(--red)">0</div>
+          </div>
+          <div class="card">
+            <div class="card-label"><div class="card-icon" style="background:var(--blue-bg)">📋</div>Total</div>
+            <div class="card-value" id="mgmt-total" style="color:var(--blue)">0</div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-hdr">
+            <div class="table-title">Gestão de motoristas</div>
+            <button class="refresh-btn" onclick="renderManagement()">↻ Actualizar</button>
+          </div>
+          <div style="padding:14px 20px 10px;">
+            <div class="search-bar">
+              <input class="search-input" type="text" id="mgmt-search" placeholder="Pesquisar por nome ou matrícula..." oninput="filterDrivers()">
+              <select class="filter-select" id="mgmt-filter" onchange="filterDrivers()">
+                <option value="all">Todos</option>
+                <option value="active">Activos</option>
+                <option value="inactive">Inactivos</option>
+              </select>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>Motorista</th><th>Matrícula</th><th>Tipo</th><th>Telefone</th><th>Transacções</th><th>Receita</th><th>Estado</th><th>Acções</th></tr></thead>
+            <tbody id="mgmt-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ── CONFIGURAÇÃO ─────────────────────────────────────────────
+const API = 'https://yelapay-platform.onrender.com';
+const COMM_RATE = 0.015;
+let currentPeriod = 'day';
+
+// Dados reais carregados da API
+let allTxns = [];
+let drivers = [];
+let apiRoutes = [];
+let apiStats = {};
+let isLoading = false;
+
+// Dados demo como fallback quando API não responde
+const demoDrivers = [
+  {id:1, name:'Manuel João',    plate:'LDA-23-45-HA', type:'car',  status:'active', phone:'+244923000001', bank:'BFA'},
+  {id:2, name:'Carlos Silva',   plate:'LD-88-12-BA',  type:'car',  status:'active', phone:'+244923000002', bank:'BAI'},
+  {id:3, name:'Pedro Neto',     plate:'GPL-001-031',  type:'moto', status:'active', phone:'+244923000003', bank:'BCI'},
+  {id:4, name:'António Marcos', plate:'LDA-67-89-CA', type:'car',  status:'active', phone:'+244923000004', bank:'BFA'},
+  {id:5, name:'Rosa Ferreira',  plate:'LD-45-67-DA',  type:'moto', status:'inactive',phone:'+244923000005', bank:'SOL'},
+];
+
+const demoRoutes = [
+  {name:'Luanda Centro → Cacuaco', fare:300, txns:142, revenue:42600},
+  {name:'Luanda → Viana',          fare:250, txns:98,  revenue:24500},
+  {name:'Rangel → Aeroporto',      fare:350, txns:76,  revenue:26600},
+  {name:'Luanda → Cazenga',        fare:200, txns:65,  revenue:13000},
+  {name:'Sambizanga → Ilha',       fare:400, txns:43,  revenue:17200},
+  {name:'Luanda → Morro Bento',    fare:250, txns:38,  revenue:9500},
+];
+
+function genDemoTxns(count) {
+  const txns = [];
+  const now = new Date();
+  for(let i=0;i<count;i++){
+    const driver = demoDrivers[Math.floor(Math.random()*4)];
+    const route = demoRoutes[Math.floor(Math.random()*demoRoutes.length)];
+    const pax = Math.ceil(Math.random()*4);
+    const amount = route.fare * pax;
+    const commission = Math.ceil(amount * COMM_RATE);
+    const daysAgo = Math.floor(Math.random()*30);
+    const date = new Date(now - daysAgo*86400000 - Math.random()*86400000);
+    txns.push({
+      ref:'YP-2026-'+String(i+1).padStart(8,'0'),
+      driver, pax, amount, commission,
+      net: amount - commission,
+      channel: Math.random()>0.3?'qr':'manual',
+      date, route: route.name,
+    });
+  }
+  return txns.sort((a,b)=>b.date-a.date);
+}
+
+// ── CARREGAR DADOS DA API REAL ────────────────────────────────
+async function loadAPIData() {
+  showLoadingBanner('A carregar dados da API real...');
+  try {
+    // Carregar tudo em paralelo
+    const [usersRes, vehiclesRes, routesRes, statsRes, txnsRes] = await Promise.allSettled([
+      fetch(`${API}/api/users`),
+      fetch(`${API}/api/vehicles`),
+      fetch(`${API}/api/routes`),
+      fetch(`${API}/api/stats`),
+      fetch(`${API}/api/transactions?limit=500`),
+    ]);
+    // Log de diagnóstico
+    console.log('API responses:', {
+      users: usersRes.status + (usersRes.value?.ok ? ' OK' : ' FAIL'),
+      vehicles: vehiclesRes.status + (vehiclesRes.value?.ok ? ' OK' : ' FAIL'),
+      routes: routesRes.status + (routesRes.value?.ok ? ' OK' : ' FAIL'),
+      stats: statsRes.status + (statsRes.value?.ok ? ' OK' : ' FAIL'),
+      transactions: txnsRes.status + (txnsRes.value?.ok ? ' OK' : ' FAIL'),
+    });
+
+    // ── Motoristas ───────────────────────────────────────────
+    if(usersRes.status==='fulfilled' && usersRes.value.ok){
+      const users = await usersRes.value.json();
+      drivers = users
+        .filter(u => u.role==='driver' || u.role==='motorista')
+        .map(u=>({
+          id: u.id,
+          name: u.name || u.full_name || 'Motorista',
+          plate: u.plate || u.vehicle_plate || u.vehiclePlate || '—',
+          type: u.vehicle_type || u.vehicleType || 'car',
+          status: u.status || 'active',
+          phone: u.phone || '—',
+          bank: u.bank_name || u.bankName || '—',
+        }));
+      if(drivers.length===0) drivers = demoDrivers;
+    } else {
+      drivers = demoDrivers;
+    }
+
+    // ── Rotas ────────────────────────────────────────────────
+    if(routesRes.status==='fulfilled' && routesRes.value.ok){
+      const rts = await routesRes.value.json();
+      apiRoutes = rts.map(r=>({
+        name: r.name || ((r.origin||'')+'→'+(r.destination||'')),
+        fare: r.fare || 300,
+        txns: 0, revenue: 0, // será calculado pelas transacções reais
+      }));
+      if(apiRoutes.length===0) apiRoutes = demoRoutes;
+    } else {
+      apiRoutes = demoRoutes;
+    }
+
+    // ── Stats ────────────────────────────────────────────────
+    if(statsRes.status==='fulfilled' && statsRes.value.ok){
+      apiStats = await statsRes.value.json();
+    }
+
+    // ── Transacções REAIS ────────────────────────────────────
+    let txnsRaw = [];
+    let apiConnected = false;
+    if(txnsRes.status==='fulfilled' && txnsRes.value.ok){
+      txnsRaw = await txnsRes.value.json();
+      apiConnected = true;
+      // Normalizar formato da API
+      if(Array.isArray(txnsRaw) && txnsRaw.length > 0){
+        allTxns = txnsRaw.map(t=>{
+          // Encontrar o motorista correspondente
+          const driver = drivers.find(d=>d.id===t.driver_id||d.id===t.driverId)
+            || {
+              id: t.driver_id||t.driverId||0,
+              name: t.driver_name||t.driverName||'Motorista',
+              plate: t.driver_plate||t.driverPlate||'—',
+              type: 'car', status:'active', phone:'—', bank:'—'
+            };
+          const amount = t.amount||0;
+          const commission = t.commission||Math.ceil(amount*COMM_RATE);
+          return {
+            ref: t.reference||t.ref||('YP-'+t.id),
+            driver,
+            pax: t.pax||1,
+            amount,
+            commission,
+            net: amount-commission,
+            channel: t.channel||'qr',
+            date: new Date(t.created_at||t.createdAt||Date.now()),
+            route: t.route||'—',
+            status: t.status||'completed',
+          };
+        }).sort((a,b)=>b.date-a.date);
+
+        // Actualizar receita por rota com dados reais
+        allTxns.forEach(t=>{
+          const route = apiRoutes.find(r=>r.name===t.route);
+          if(route){ route.txns++; route.revenue+=t.amount; }
+        });
+        // Ordenar rotas por receita
+        apiRoutes.sort((a,b)=>b.revenue-a.revenue);
+
+        console.log(`✅ ${allTxns.length} transacções reais carregadas da API`);
+      } else {
+        // API respondeu mas sem dados — usar demo
+        console.log('API online mas sem transaccoes — a usar dados demo para visualizacao');
+        allTxns = genDemoTxns(150);
+      }
+    } else {
+      // Fallback demo
+      const status = txnsRes.value?.status || 'erro de rede';
+      console.warn('Transactions endpoint status:', status);
+      allTxns = genDemoTxns(150);
+    }
+
+    hideLoadingBanner();
+    showAPIBadge(apiConnected, txnsRaw.length);
+    initDashboard();
+
+  } catch(err) {
+    console.warn('API offline — a usar dados demo:', err.message);
+    drivers = demoDrivers;
+    apiRoutes = demoRoutes;
+    allTxns = genDemoTxns(150);
+    hideLoadingBanner();
+    showAPIBadge(false);
+    initDashboard();
+  }
+}
+
+// ── BANNER DE LOADING E STATUS ────────────────────────────────
+function showLoadingBanner(msg) {
+  let banner = document.getElementById('api-banner');
+  if(!banner){
+    banner = document.createElement('div');
+    banner.id = 'api-banner';
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2000;padding:10px 20px;font-size:12px;font-weight:600;text-align:center;';
+    document.body.appendChild(banner);
+  }
+  banner.style.background = '#1A2D4A';
+  banner.style.color = '#8BA5C0';
+  banner.textContent = '⏳ '+msg;
+}
+
+function hideLoadingBanner() {
+  const b = document.getElementById('api-banner');
+  if(b) setTimeout(()=>b.remove(), 1000);
+}
+
+function showAPIBadge(connected, txnCount) {
+  const btn = document.querySelector('.refresh-btn');
+  if(btn){
+    const label = connected
+      ? (txnCount > 0 ? `↻ ${txnCount} transaccoes reais` : '↻ API ligada (sem dados)')
+      : '↻ Modo Demo';
+    btn.textContent = label;
+    btn.style.background = connected ? 'var(--green-bg)' : 'var(--gold-bg)';
+    btn.style.color = connected ? 'var(--green2)' : 'var(--gold)';
+    btn.style.borderColor = connected
+      ? 'rgba(39,196,154,0.2)' : 'rgba(201,168,76,0.2)';
+    setTimeout(()=>{
+      btn.textContent = '↻ Actualizar';
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 4000);
+  }
+}
+
+function filterByPeriod(txns, period) {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return txns.filter(t => {
+    if(period==='day') return t.date >= today;
+    if(period==='week') return t.date >= new Date(today - 6*86400000);
+    return t.date >= new Date(now.getFullYear(), now.getMonth(), 1);
+  });
+}
+
+// ── AUTENTICAÇÃO ─────────────────────────────────────────────
+function doLogin(){
+  const user = document.getElementById('login-user').value;
+  const pass = document.getElementById('login-pass').value;
+  if(user==='admin' && pass==='yelapay2026'){
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    loadAPIData(); // Carregar dados reais da API
+  } else {
+    alert('❌ Credenciais incorrectas.\nUtilizador: admin · Password: yelapay2026');
+  }
+}
+
+function doLogout(){
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-pass').value='';
+}
+
+// ── NAVEGAÇÃO ────────────────────────────────────────────────
+const pageTitles = {
+  overview:'Visão Geral', revenue:'Receitas da Frota',
+  commissions:'Comissões YelaPay+', drivers:'Motoristas',
+  vehicles:'Veículos da Frota', routes:'Rotas', settlements:'Liquidações',
+  alerts:'Alertas Operacionais', management:'Gestão de Motoristas'
+};
+
+function goPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  document.getElementById('page-title').textContent = pageTitles[id]||id;
+  renderPage(id);
+}
+
+function setPeriod(period, btn){
+  currentPeriod = period;
+  document.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  initDashboard();
+}
+
+function refreshData(){
+  loadAPIData();
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+function initDashboard(){
+  updateDateBadge();
+  const txns = filterByPeriod(allTxns, currentPeriod);
+  renderOverview(txns);
+  renderPage(document.querySelector('.page.active')?.id?.replace('page-','') || 'overview');
+}
+
+function updateDateBadge(){
+  const now = new Date();
+  const opts = {day:'2-digit', month:'short', year:'numeric'};
+  document.getElementById('date-badge').textContent = now.toLocaleDateString('pt-PT', opts);
+}
+
+function renderPage(id){
+  const txns = filterByPeriod(allTxns, currentPeriod);
+  if(id==='revenue') renderRevenue(txns);
+  else if(id==='commissions') renderCommissions(txns);
+  else if(id==='drivers') renderDrivers(txns);
+  else if(id==='vehicles') renderVehicles(txns);
+  else if(id==='routes') renderRoutes();
+  else if(id==='settlements') renderSettlements(txns);
+  else if(id==='alerts') renderAlerts();
+  else if(id==='management') renderManagement();
+}
+
+// ── VISÃO GERAL ──────────────────────────────────────────────
+function renderOverview(txns){
+  const gross = txns.reduce((s,t)=>s+t.amount,0);
+  const comm = txns.reduce((s,t)=>s+t.commission,0);
+  const pax = txns.reduce((s,t)=>s+t.pax,0);
+  setText('ov-revenue', gross.toLocaleString('pt-PT')+' AKZ');
+  setText('ov-commission', comm.toLocaleString('pt-PT')+' AKZ');
+  setText('ov-passengers', pax.toLocaleString('pt-PT'));
+  setText('ov-txns', txns.length.toLocaleString('pt-PT'));
+
+  const label = currentPeriod==='day'?'hoje':currentPeriod==='week'?'esta semana':'este mês';
+  setText('ov-revenue-trend', '↑ Receita bruta '+label);
+  setText('ov-commission-trend', '↑ '+((comm/gross*100)||0).toFixed(1)+'% da receita bruta');
+  setText('ov-passengers-trend', 'Total '+label);
+  setText('ov-txns-trend', txns.filter(t=>t.channel==='qr').length+' QR · '+txns.filter(t=>t.channel==='manual').length+' Manual');
+
+  renderBarChart(txns);
+  renderDonut(txns);
+  renderTopDrivers(txns);
+}
+
+function renderBarChart(txns){
+  const days = 7;
+  const bars = [];
+  const now = new Date();
+  for(let i=days-1;i>=0;i--){
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate()-i);
+    const next = new Date(d.getTime()+86400000);
+    const dayTxns = txns.filter(t=>t.date>=d&&t.date<next);
+    const total = dayTxns.reduce((s,t)=>s+t.amount,0);
+    const label = i===0?'Hoje':d.toLocaleDateString('pt-PT',{weekday:'short'});
+    bars.push({total,label});
+  }
+  const max = Math.max(...bars.map(b=>b.total),1);
+  const html = bars.map(b=>`
+    <div class="bar-wrap">
+      <div class="bar-val">${b.total>0?(b.total/1000).toFixed(0)+'K':''}</div>
+      <div class="bar" style="height:${Math.max(b.total/max*100,4)}px"></div>
+      <div class="bar-label">${b.label}</div>
+    </div>`).join('');
+  document.getElementById('bar-chart').innerHTML=html;
+}
+
+function renderDonut(txns){
+  const qr = txns.filter(t=>t.channel==='qr').length;
+  const manual = txns.length - qr;
+  const pct = txns.length>0?Math.round(qr/txns.length*100):70;
+  const circ = 2*Math.PI*35;
+  const qrLen = circ*pct/100;
+  const manLen = circ-qrLen;
+  const qrEl=document.getElementById('donut-qr');
+  const manEl=document.getElementById('donut-manual');
+  if(qrEl) qrEl.setAttribute('stroke-dasharray',`${qrLen} ${manLen}`);
+  if(manEl){ manEl.setAttribute('stroke-dasharray',`${manLen} ${qrLen}`); manEl.setAttribute('stroke-dashoffset',`-${qrLen}`);}
+  setText('donut-pct',pct+'%');
+  setText('leg-qr',pct+'%');
+  setText('leg-manual',(100-pct)+'%');
+}
+
+function renderTopDrivers(txns){
+  const byDriver = {};
+  txns.forEach(t=>{
+    if(!byDriver[t.driver.id]) byDriver[t.driver.id]={driver:t.driver,pax:0,amount:0,commission:0,txns:0,last:null};
+    byDriver[t.driver.id].pax+=t.pax;
+    byDriver[t.driver.id].amount+=t.amount;
+    byDriver[t.driver.id].commission+=t.commission;
+    byDriver[t.driver.id].txns++;
+    if(!byDriver[t.driver.id].last||t.date>byDriver[t.driver.id].last) byDriver[t.driver.id].last=t.date;
+  });
+  const sorted = Object.values(byDriver).sort((a,b)=>b.amount-a.amount);
+  const tbody = document.getElementById('top-drivers-table');
+  if(!tbody)return;
+  if(sorted.length===0){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text3);">Sem transacções no período seleccionado</td></tr>`;return;}
+  tbody.innerHTML = sorted.map(d=>`<tr><td class='td-main'>${d.driver.name}</td><td class='td-mono'>${d.driver.plate}</td><td>${d.pax}</td><td class='td-green'>+${d.amount.toLocaleString('pt-PT')} AKZ</td><td class='td-gold'>${d.commission.toLocaleString('pt-PT')} AKZ</td><td><span class='status s-active'><span class='status-dot'></span>Activo</span></td></tr>`).join('');
+}
+
+// ── RECEITAS ─────────────────────────────────────────────────
+function renderRevenue(txns){
+  const gross=txns.reduce((s,t)=>s+t.amount,0);
+  const comm=txns.reduce((s,t)=>s+t.commission,0);
+  const net=gross-comm;
+  setText('rev-gross',gross.toLocaleString('pt-PT')+' AKZ');
+  setText('rev-comm',comm.toLocaleString('pt-PT')+' AKZ');
+  setText('rev-net',net.toLocaleString('pt-PT')+' AKZ');
+  setText('txn-count-badge',txns.length+' transacções');
+  const tbody=document.getElementById('all-txns-table');
+  if(!tbody)return;
+  tbody.innerHTML=txns.slice(0,50).map(t=>`
+    <tr>
+      <td class="td-mono" style="font-size:11px;">${t.ref}</td>
+      <td class="td-main">${t.driver.name}</td>
+      <td>${t.pax}</td>
+      <td class="td-green">+${t.amount.toLocaleString('pt-PT')} AKZ</td>
+      <td class="td-gold">${t.commission.toLocaleString('pt-PT')} AKZ</td>
+      <td class="td-main">${t.net.toLocaleString('pt-PT')} AKZ</td>
+      <td><span class="status ${t.channel==='qr'?'s-active':'s-pending'}"><span class="status-dot"></span>${t.channel==='qr'?'QR Code':'Manual'}</span></td>
+      <td style="font-size:11px;color:var(--text3);">${t.date.toLocaleDateString('pt-PT')} ${t.date.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'})}</td>
+    </tr>`).join('');
+}
+
+// ── COMISSÕES ────────────────────────────────────────────────
+function renderCommissions(txns){
+  const totalComm=txns.reduce((s,t)=>s+t.commission,0);
+  setText('comm-total',totalComm.toLocaleString('pt-PT')+' AKZ');
+  setText('comm-txns',txns.length);
+  const byDriver={};
+  txns.forEach(t=>{
+    if(!byDriver[t.driver.id]) byDriver[t.driver.id]={driver:t.driver,amount:0,commission:0,txns:0};
+    byDriver[t.driver.id].amount+=t.amount;
+    byDriver[t.driver.id].commission+=t.commission;
+    byDriver[t.driver.id].txns++;
+  });
+  const sorted=Object.values(byDriver).sort((a,b)=>b.commission-a.commission);
+  const tbody=document.getElementById('comm-table');
+  if(!tbody)return;
+  tbody.innerHTML=sorted.map(d=>`
+    <tr>
+      <td class="td-main">${d.driver.name}</td>
+      <td class="td-mono">${d.driver.plate}</td>
+      <td>${d.txns}</td>
+      <td class="td-green">${d.amount.toLocaleString('pt-PT')} AKZ</td>
+      <td class="td-gold">${d.commission.toLocaleString('pt-PT')} AKZ</td>
+      <td>${totalComm>0?(d.commission/totalComm*100).toFixed(1)+'%':'—'}</td>
+    </tr>`).join('');
+}
+
+// ── MOTORISTAS ───────────────────────────────────────────────
+function renderDrivers(txns){
+  const byDriver={};
+  txns.forEach(t=>{
+    if(!byDriver[t.driver.id]) byDriver[t.driver.id]={pax:0,amount:0,last:null};
+    byDriver[t.driver.id].pax+=t.pax;
+    byDriver[t.driver.id].amount+=t.amount;
+    if(!byDriver[t.driver.id].last||t.date>byDriver[t.driver.id].last) byDriver[t.driver.id].last=t.date;
+  });
+  const active=drivers.filter(d=>d.status==='active');
+  const best=Object.entries(byDriver).sort((a,b)=>b[1].amount-a[1].amount)[0];
+  const bestDriver=best?drivers.find(d=>d.id===parseInt(best[0])):null;
+  setText('dr-active',active.length);
+  setText('dr-total',drivers.length);
+  setText('dr-best',bestDriver?.name||'—');
+  const tbody=document.getElementById('drivers-table');
+  if(!tbody)return;
+  tbody.innerHTML=drivers.map(d=>{
+    const stats=byDriver[d.id]||{pax:0,amount:0,last:null};
+    const lastDate=stats.last?stats.last.toLocaleDateString('pt-PT'):'—';
+    return`<tr>
+      <td class="td-main">${d.name}</td>
+      <td class="td-mono">${d.plate}</td>
+      <td>${d.type==='car'?'🚗 Carro':'🏍️ Moto'}</td>
+      <td>${stats.pax}</td>
+      <td class="td-green">${stats.amount.toLocaleString('pt-PT')} AKZ</td>
+      <td style="font-size:11px;color:var(--text3);">${lastDate}</td>
+      <td><span class="status ${d.status==='active'?'s-active':'s-inactive'}"><span class="status-dot"></span>${d.status==='active'?'Activo':'Inactivo'}</span></td>
+    </tr>`;}).join('');
+}
+
+// ── VEÍCULOS ─────────────────────────────────────────────────
+function renderVehicles(txns){
+  const byPlate={};
+  txns.forEach(t=>{
+    if(!byPlate[t.driver.plate]) byPlate[t.driver.plate]={amount:0,txns:0};
+    byPlate[t.driver.plate].amount+=t.amount;
+    byPlate[t.driver.plate].txns++;
+  });
+  const cars=drivers.filter(d=>d.type==='car').length;
+  const motos=drivers.filter(d=>d.type==='moto').length;
+  setText('veh-cars',cars);
+  setText('veh-motos',motos);
+  setText('veh-total',drivers.length);
+  const tbody=document.getElementById('vehicles-table');
+  if(!tbody)return;
+  tbody.innerHTML=drivers.map(d=>{
+    const stats=byPlate[d.plate]||{amount:0,txns:0};
+    return`<tr>
+      <td class="td-mono td-main">${d.plate}</td>
+      <td>${d.type==='car'?'🚗 Carro':'🏍️ Moto'}</td>
+      <td>${d.name}</td>
+      <td style="color:var(--text3);">—</td>
+      <td>${stats.txns}</td>
+      <td class="td-green">${stats.amount.toLocaleString('pt-PT')} AKZ</td>
+      <td><span class="status ${d.status==='active'?'s-active':'s-inactive'}"><span class="status-dot"></span>${d.status==='active'?'Activo':'Inactivo'}</span></td>
+    </tr>`;}).join('');
+}
+
+// ── ROTAS ────────────────────────────────────────────────────
+function renderRoutes(){
+  const routeData = apiRoutes.length>0 ? apiRoutes : demoRoutes;
+  const max=routeData[0]?.revenue||1;
+  const el=document.getElementById('routes-list');
+  const routes = routeData;
+  if(!el)return;
+  el.innerHTML=routeData.map((r,i)=>`
+    <div class="route-item">
+      <div class="route-rank ${i<3?'top':''}">${i+1}</div>
+      <div class="route-info">
+        <div class="route-name">${r.name}</div>
+        <div class="route-sub">${r.txns} viagens · ${r.fare} AKZ/passageiro</div>
+      </div>
+      <div class="route-bar-wrap">
+        <div class="route-bar-bg"><div class="route-bar-fill" style="width:${r.revenue/max*100}%"></div></div>
+      </div>
+      <div class="route-amt">${(r.revenue/1000).toFixed(1)}K AKZ</div>
+    </div>`).join('');
+}
+
+// ── LIQUIDAÇÕES ──────────────────────────────────────────────
+function renderSettlements(txns){
+  const byDriver={};
+  txns.forEach(t=>{
+    if(!byDriver[t.driver.id]) byDriver[t.driver.id]={driver:t.driver,amount:0,commission:0,net:0};
+    byDriver[t.driver.id].amount+=t.amount;
+    byDriver[t.driver.id].commission+=t.commission;
+    byDriver[t.driver.id].net+=t.net;
+  });
+  const settlements=Object.values(byDriver);
+  const totalPending=settlements.reduce((s,d)=>s+d.net,0);
+  setText('liq-pending-amt',totalPending.toLocaleString('pt-PT')+' AKZ');
+  setText('liq-paid-amt','0 AKZ');
+  setText('liq-count',settlements.length);
+  const tbody=document.getElementById('settlements-table');
+  if(!tbody)return;
+  const now=new Date();
+  const period=now.toLocaleDateString('pt-PT',{month:'short',year:'numeric'});
+  tbody.innerHTML=settlements.sort((a,b)=>b.net-a.net).map(d=>`
+    <tr>
+      <td class="td-main">${d.driver.name}</td>
+      <td class="td-mono">${d.driver.plate}</td>
+      <td style="font-size:11px;color:var(--text3);">${period}</td>
+      <td class="td-green">${d.amount.toLocaleString('pt-PT')} AKZ</td>
+      <td class="td-gold">${d.commission.toLocaleString('pt-PT')} AKZ</td>
+      <td class="td-main" style="font-weight:700;">${d.net.toLocaleString('pt-PT')} AKZ</td>
+      <td style="color:var(--text3);font-size:12px;">${d.driver.bank||'—'}</td>
+      <td><span class="status s-pending"><span class="status-dot"></span>Pendente</span></td>
+      <td><button class="pay-btn pay-btn-green" onclick='markPaid(this,"${d.driver.name}")'>Liquidar</button></td>
+    </tr>`).join('');
+}
+
+function markPaid(btn, name){
+  if(!confirm(`Confirmar liquidação para ${name}?`))return;
+  const row=btn.closest('tr');
+  row.querySelector('.status').className='status s-paid';
+  row.querySelector('.status-dot').className='status-dot';
+  row.querySelector('.status').innerHTML='<span class="status-dot" style="background:var(--blue)"></span>Liquidado';
+  btn.textContent='✓ Pago';
+  btn.className='pay-btn pay-btn-gold';
+  btn.onclick=null;
+}
+
+
+// ── ALERTAS ──────────────────────────────────────────────────
+function renderAlerts(){
+  const txns = filterByPeriod(allTxns, currentPeriod);
+  const alerts = [];
+
+  // Motoristas sem actividade há mais de 48h
+  const now = new Date();
+  const activeDrivers = drivers.filter(d=>d.status==='active');
+  activeDrivers.forEach(d=>{
+    const lastTxn = allTxns.find(t=>t.driver.id===d.id);
+    if(!lastTxn){
+      alerts.push({type:'warning',icon:'😴',title:`${d.name} sem actividade`,sub:`Matrícula ${d.plate} · Nenhuma transacção registada ainda`,time:'—',action:'Ver motorista',actionClass:'aa-gold'});
+    } else {
+      const hoursAgo = (now-lastTxn.date)/3600000;
+      if(hoursAgo>48){
+        alerts.push({type:'warning',icon:'⚠️',title:`${d.name} inactivo há ${Math.floor(hoursAgo/24)} dias`,sub:`Matrícula ${d.plate} · Último pagamento: ${lastTxn.date.toLocaleDateString('pt-PT')}`,time:lastTxn.date.toLocaleDateString('pt-PT'),action:'Contactar',actionClass:'aa-gold'});
+      }
+    }
+  });
+
+  // Liquidações pendentes
+  const totalPending = txns.reduce((s,t)=>s+t.net,0);
+  if(totalPending>0){
+    alerts.push({type:'info',icon:'🏦',title:`Liquidações pendentes: ${totalPending.toLocaleString('pt-PT')} AKZ`,sub:`${drivers.length} motoristas aguardam liquidação · Processar via banco parceiro`,time:'Hoje',action:'Ver liquidações',actionClass:'aa-blue'});
+  }
+
+  // Transacções com valor anormal (>5000 AKZ)
+  const highValue = txns.filter(t=>t.amount>5000);
+  if(highValue.length>0){
+    alerts.push({type:'critical',icon:'🚨',title:`${highValue.length} transacção(ões) com valor elevado`,sub:`Valores superiores a 5.000 AKZ · Verificar autenticidade`,time:'Período actual',action:'Verificar',actionClass:'aa-red'});
+  }
+
+  // API status
+  alerts.push({type:'info',icon:'✅',title:'Sistema operacional',sub:`API online · Base de dados Neon activa · ${allTxns.length} transacções carregadas`,time:'Agora',action:null});
+
+  // Contar por tipo
+  setText('alerts-critical',alerts.filter(a=>a.type==='critical').length);
+  setText('alerts-warning',alerts.filter(a=>a.type==='warning').length);
+
+  const list = document.getElementById('alerts-list');
+  if(!list)return;
+  if(alerts.length===0){
+    list.innerHTML='<div class="alert-empty">✅ Sem alertas activos. O sistema está a funcionar normalmente.</div>';
+    return;
+  }
+  list.innerHTML = alerts.map(a=>`
+    <div class="alert-card ${a.type}">
+      <div class="alert-icon ${a.type}">${a.icon}</div>
+      <div class="alert-info">
+        <div class="alert-title">${a.title}</div>
+        <div class="alert-sub">${a.sub}</div>
+        ${a.time?`<div class="alert-time">${a.time}</div>`:''}
+      </div>
+      ${a.action?`<button class="alert-action ${a.actionClass}">${a.action}</button>`:''}
+    </div>`).join('');
+}
+
+// ── GESTÃO DE MOTORISTAS ──────────────────────────────────────
+let currentDriverDetail = null;
+let filteredDrivers = [];
+
+function renderManagement(){
+  const txns = filterByPeriod(allTxns,'all');
+  const byDriver = {};
+  txns.forEach(t=>{
+    if(!byDriver[t.driver.id]) byDriver[t.driver.id]={txns:0,amount:0};
+    byDriver[t.driver.id].txns++;
+    byDriver[t.driver.id].amount+=t.amount;
+  });
+  const active=drivers.filter(d=>d.status==='active').length;
+  const inactive=drivers.filter(d=>d.status==='inactive').length;
+  setText('mgmt-active',active);
+  setText('mgmt-suspended',inactive);
+  setText('mgmt-total',drivers.length);
+  filteredDrivers=[...drivers];
+  renderMgmtTable(byDriver);
+}
+
+function filterDrivers(){
+  const search=(document.getElementById('mgmt-search')?.value||'').toLowerCase();
+  const filter=document.getElementById('mgmt-filter')?.value||'all';
+  filteredDrivers=drivers.filter(d=>{
+    const matchSearch=!search||d.name.toLowerCase().includes(search)||d.plate.toLowerCase().includes(search);
+    const matchFilter=filter==='all'||(filter==='active'&&d.status==='active')||(filter==='inactive'&&d.status==='inactive');
+    return matchSearch&&matchFilter;
+  });
+  const txns=filterByPeriod(allTxns,'all');
+  const byDriver={};
+  txns.forEach(t=>{
+    if(!byDriver[t.driver.id]) byDriver[t.driver.id]={txns:0,amount:0};
+    byDriver[t.driver.id].txns++;
+    byDriver[t.driver.id].amount+=t.amount;
+  });
+  renderMgmtTable(byDriver);
+}
+
+function renderMgmtTable(byDriver){
+  const tbody=document.getElementById('mgmt-table');
+  if(!tbody)return;
+  if(filteredDrivers.length===0){
+    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text3);">Nenhum motorista encontrado</td></tr>';
+    return;
+  }
+  tbody.innerHTML=filteredDrivers.map(d=>{
+    const stats=byDriver[d.id]||{txns:0,amount:0};
+    const isActive=d.status==='active';
+    return`<tr>
+      <td class='td-main'>${d.name}</td>
+      <td class='td-mono'>${d.plate}</td>
+      <td>${d.type==='car'?'🚗':'🏍️'}</td>
+      <td style='font-size:12px;color:var(--text3);'>${d.phone||'—'}</td>
+      <td>${stats.txns}</td>
+      <td class='td-green'>${stats.amount.toLocaleString('pt-PT')} AKZ</td>
+      <td><span class='status ${isActive?'s-active':'s-inactive'}'><span class='status-dot'></span>${isActive?'Activo':'Inactivo'}</span></td>
+      <td>
+        <div class='mgmt-actions'>
+          <button class='mgmt-btn mgmt-view' onclick='openDriverModal(${d.id})'>Ver</button>
+          <button class='mgmt-btn ${isActive?'mgmt-suspend':'mgmt-activate'}' onclick='quickToggle(${d.id})'>${isActive?'Suspender':'Activar'}</button>
+        </div>
+      </td>
+    </tr>`;}).join('');
+}
+
+function quickToggle(id){
+  const driver=drivers.find(d=>d.id===id);
+  if(!driver)return;
+  const newStatus=driver.status==='active'?'inactive':'active';
+  if(!confirm(`${newStatus==='inactive'?'Suspender':'Activar'} ${driver.name}?`))return;
+  driver.status=newStatus;
+  renderManagement();
+  showNotification(newStatus==='inactive'?`⊘ ${driver.name} suspenso`:`✓ ${driver.name} activado`);
+}
+
+function openDriverModal(id){
+  const driver=drivers.find(d=>d.id===id);
+  if(!driver)return;
+  currentDriverDetail=driver;
+  const txns=allTxns.filter(t=>t.driver.id===id);
+  const revenue=txns.reduce((s,t)=>s+t.amount,0);
+  setText('dm-title',driver.name);
+  setText('dm-name',driver.name);
+  setText('dm-plate',driver.plate);
+  setText('dm-type',driver.type==='car'?'🚗 Carro':'🏍️ Moto');
+  setText('dm-phone',driver.phone||'—');
+  setText('dm-txns',txns.length+' transacções');
+  setText('dm-revenue',revenue.toLocaleString('pt-PT')+' AKZ');
+  const statusEl=document.getElementById('dm-status');
+  if(statusEl) statusEl.innerHTML=`<span class="status ${driver.status==='active'?'s-active':'s-inactive'}"><span class="status-dot"></span>${driver.status==='active'?'Activo':'Inactivo'}</span>`;
+  document.getElementById('driver-modal').classList.add('show');
+}
+
+function closeDriverModal(){
+  document.getElementById('driver-modal').classList.remove('show');
+  currentDriverDetail=null;
+}
+
+function toggleDriverStatus(action){
+  if(!currentDriverDetail)return;
+  const newStatus=action==='activate'?'active':'inactive';
+  if(!confirm(`${action==='activate'?'Activar':'Suspender'} ${currentDriverDetail.name}?`))return;
+  currentDriverDetail.status=newStatus;
+  closeDriverModal();
+  renderManagement();
+  showNotification(action==='activate'?`✓ ${currentDriverDetail.name} activado`:`⊘ ${currentDriverDetail.name} suspenso`);
+}
+
+function resetDriverPIN(){
+  if(!currentDriverDetail)return;
+  if(!confirm(`Resetar PIN de ${currentDriverDetail.name}?
+O motorista receberá um novo PIN por SMS.`))return;
+  showNotification(`🔑 PIN de ${currentDriverDetail.name} resetado — SMS enviado`);
+  closeDriverModal();
+}
+
+// ── EXPORTAÇÃO ────────────────────────────────────────────────
+let exportPeriodSel = 'day';
+
+function openExportModal(){
+  document.getElementById('export-modal').classList.add('show');
+}
+function closeExportModal(){
+  document.getElementById('export-modal').classList.remove('show');
+}
+function setExportPeriod(period,btn){
+  exportPeriodSel=period;
+  document.querySelectorAll('.ep-opt').forEach(o=>o.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function exportCSV(){
+  const txns=exportPeriodSel==='all'?allTxns:filterByPeriod(allTxns,exportPeriodSel);
+  const header='Referencia,Motorista,Matricula,Passageiros,Valor (AKZ),Comissao YP+ (AKZ),Liquido Motorista (AKZ),Canal,Estado,Data,Hora\n';
+  const rows=txns.map(t=>[
+    t.ref, t.driver.name, t.driver.plate, t.pax,
+    t.amount, t.commission, t.net,
+    t.channel==='qr'?'QR Code':'Manual',
+    'Concluído',
+    t.date.toLocaleDateString('pt-PT'),
+    t.date.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'})
+  ].join(',')).join('\n');
+  downloadFile('YelaPay_Transaccoes_'+new Date().toISOString().slice(0,10)+'.csv', header+rows, 'text/csv');
+  closeExportModal();
+  showNotification('📊 Excel/CSV exportado com sucesso!');
+}
+
+function exportCommissions(){
+  const txns=exportPeriodSel==='all'?allTxns:filterByPeriod(allTxns,exportPeriodSel);
+  const byDriver={};
+  txns.forEach(t=>{
+    if(!byDriver[t.driver.name]) byDriver[t.driver.name]={plate:t.driver.plate,txns:0,amount:0,commission:0};
+    byDriver[t.driver.name].txns++;
+    byDriver[t.driver.name].amount+=t.amount;
+    byDriver[t.driver.name].commission+=t.commission;
+  });
+  const header='Motorista,Matricula,Transaccoes,Volume (AKZ),Comissao YelaPay+ (AKZ),Taxa\n';
+  const totalComm=txns.reduce((s,t)=>s+t.commission,0);
+  const rows=Object.entries(byDriver).map(([name,d])=>[
+    name, d.plate, d.txns, d.amount, d.commission, '1,5%'
+  ].join(',')).join('\n');
+  const footer='\nTOTAL,,'+txns.length+','+txns.reduce((s,t)=>s+t.amount,0)+','+totalComm+',';
+  downloadFile('YelaPay_Comissoes_'+new Date().toISOString().slice(0,10)+'.csv', header+rows+footer, 'text/csv');
+  closeExportModal();
+  showNotification('⚡ Relatório de comissões exportado!');
+}
+
+function exportSettlements(){
+  const txns=exportPeriodSel==='all'?allTxns:filterByPeriod(allTxns,exportPeriodSel);
+  const byDriver={};
+  txns.forEach(t=>{
+    if(!byDriver[t.driver.name]) byDriver[t.driver.name]={plate:t.driver.plate,bank:t.driver.bank||'—',amount:0,commission:0,net:0};
+    byDriver[t.driver.name].amount+=t.amount;
+    byDriver[t.driver.name].commission+=t.commission;
+    byDriver[t.driver.name].net+=t.net;
+  });
+  const period=new Date().toLocaleDateString('pt-PT',{month:'long',year:'numeric'});
+  const header=`Relatorio de Liquidacoes YelaPay+ - ${period}\n\nMotorista,Matricula,Banco,Volume Bruto (AKZ),Comissao YP+ (AKZ),A Liquidar (AKZ)\n`;
+  const rows=Object.entries(byDriver).map(([name,d])=>[
+    name, d.plate, d.bank, d.amount, d.commission, d.net
+  ].join(',')).join('\n');
+  downloadFile('YelaPay_Liquidacoes_'+new Date().toISOString().slice(0,10)+'.csv', header+rows, 'text/csv');
+  closeExportModal();
+  showNotification('🏦 Relatório de liquidações exportado!');
+}
+
+function exportPDF(){
+  // Gerar HTML para imprimir como PDF
+  const txns=exportPeriodSel==='all'?allTxns:filterByPeriod(allTxns,exportPeriodSel);
+  const gross=txns.reduce((s,t)=>s+t.amount,0);
+  const comm=txns.reduce((s,t)=>s+t.commission,0);
+  const period=exportPeriodSel==='day'?'Hoje':exportPeriodSel==='week'?'Esta semana':exportPeriodSel==='month'?'Este mês':'Período completo';
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>YelaPay+ Relatório</title>
+  <style>body{font-family:Arial,sans-serif;padding:40px;color:#333;}h1{color:#1A7F5A;}table{width:100%;border-collapse:collapse;margin-top:20px;}th{background:#0B1F3A;color:#fff;padding:10px;}td{padding:8px;border-bottom:1px solid #eee;}tfoot td{font-weight:bold;background:#f5f5f5;}.header{display:flex;justify-content:space-between;margin-bottom:30px;}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0;}.sum-card{background:#f9f9f9;border-radius:8px;padding:16px;text-align:center;}.sum-val{font-size:22px;font-weight:bold;color:#1A7F5A;}.sum-lbl{font-size:12px;color:#666;margin-top:4px;}</style></head><body>
+  <div class="header"><div><h1>YelaPay+ · Relatório Financeiro</h1><p>${period} · Gerado em ${new Date().toLocaleDateString('pt-PT')}</p></div><div style="text-align:right"><strong>Pascoal Frederico</strong><br>Proprietário · YelaPay+</div></div>
+  <div class="summary"><div class="sum-card"><div class="sum-val">${gross.toLocaleString('pt-PT')} AKZ</div><div class="sum-lbl">Receita Bruta</div></div><div class="sum-card"><div class="sum-val">${comm.toLocaleString('pt-PT')} AKZ</div><div class="sum-lbl">Comissões YelaPay+</div></div><div class="sum-card"><div class="sum-val">${txns.length}</div><div class="sum-lbl">Transacções</div></div></div>
+  <table><thead><tr><th>Referência</th><th>Motorista</th><th>Matrícula</th><th>Pax</th><th>Valor</th><th>Comissão</th><th>Canal</th><th>Data</th></tr></thead><tbody>
+  ${txns.slice(0,100).map(t=>`<tr><td>${t.ref}</td><td>${t.driver.name}</td><td>${t.driver.plate}</td><td>${t.pax}</td><td>${t.amount.toLocaleString('pt-PT')} AKZ</td><td>${t.commission.toLocaleString('pt-PT')} AKZ</td><td>${t.channel==='qr'?'QR':'Manual'}</td><td>${t.date.toLocaleDateString('pt-PT')}</td></tr>`).join('')}
+  </tbody><tfoot><tr><td colspan="4"><strong>TOTAL</strong></td><td><strong>${gross.toLocaleString('pt-PT')} AKZ</strong></td><td><strong>${comm.toLocaleString('pt-PT')} AKZ</strong></td><td colspan="2"></td></tr></tfoot></table>
+  </body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),500);
+  closeExportModal();
+}
+
+function downloadFile(filename,content,type){
+  const blob=new Blob(['﻿'+content],{type:type+';charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── NOTIFICAÇÃO TOAST ─────────────────────────────────────────
+function showNotification(msg){
+  let n=document.getElementById('dash-notif');
+  if(!n){
+    n=document.createElement('div');
+    n.id='dash-notif';
+    n.style.cssText='position:fixed;bottom:24px;right:24px;background:var(--navy3);border:1px solid var(--border);border-radius:12px;padding:12px 18px;font-size:13px;color:var(--text);z-index:900;box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:all 0.3s;';
+    document.body.appendChild(n);
+  }
+  n.textContent=msg;
+  n.style.opacity='1';
+  n.style.transform='translateY(0)';
+  setTimeout(()=>{n.style.opacity='0';n.style.transform='translateY(10px)';},3000);
+}
+
+// ── HELPERS ──────────────────────────────────────────────────
+function setText(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+
+// Enter no login
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('login-pass').addEventListener('keydown',e=>{
+    if(e.key==='Enter')doLogin();
+  });
+  updateDateBadge();
+});
+</script>
+
+<!-- EXPORT MODAL -->
+<div class="export-modal" id="export-modal" onclick="if(event.target===this)closeExportModal()">
+  <div class="export-box">
+    <div class="export-title">Exportar relatório</div>
+    <div class="export-sub">Escolhe o formato e o período</div>
+    <div class="export-period">
+      <span class="export-period-lbl">Período</span>
+      <div class="export-period-opts">
+        <div class="ep-opt active" onclick="setExportPeriod('day',this)">Hoje</div>
+        <div class="ep-opt" onclick="setExportPeriod('week',this)">Semana</div>
+        <div class="ep-opt" onclick="setExportPeriod('month',this)">Mês</div>
+        <div class="ep-opt" onclick="setExportPeriod('all',this)">Tudo</div>
+      </div>
+    </div>
+    <div class="export-options">
+      <div class="export-opt" onclick="exportCSV()">
+        <div class="export-opt-icon">📊</div>
+        <div class="export-opt-name">Excel / CSV</div>
+        <div class="export-opt-sub">Para contabilidade e banco</div>
+      </div>
+      <div class="export-opt" onclick="exportPDF()">
+        <div class="export-opt-icon">📄</div>
+        <div class="export-opt-name">PDF</div>
+        <div class="export-opt-sub">Relatório formatado</div>
+      </div>
+      <div class="export-opt" onclick="exportCommissions()">
+        <div class="export-opt-icon">⚡</div>
+        <div class="export-opt-name">Comissões</div>
+        <div class="export-opt-sub">Receita YelaPay+</div>
+      </div>
+      <div class="export-opt" onclick="exportSettlements()">
+        <div class="export-opt-icon">🏦</div>
+        <div class="export-opt-name">Liquidações</div>
+        <div class="export-opt-sub">Para o banco parceiro</div>
+      </div>
+    </div>
+    <button class="export-close" onclick="closeExportModal()">Cancelar</button>
+  </div>
+</div>
+
+<!-- DRIVER DETAIL MODAL -->
+<div class="driver-modal" id="driver-modal" onclick="if(event.target===this)closeDriverModal()">
+  <div class="driver-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div class="export-title" id="dm-title">Motorista</div>
+      <span style="cursor:pointer;color:var(--text3);font-size:20px;" onclick="closeDriverModal()">×</span>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;">
+      <div class="info-row"><span>Nome</span><span id="dm-name" style="color:var(--text);font-weight:500;">—</span></div>
+      <div class="info-row"><span>Matrícula</span><span id="dm-plate" style="font-family:monospace;color:var(--text);">—</span></div>
+      <div class="info-row"><span>Tipo</span><span id="dm-type">—</span></div>
+      <div class="info-row"><span>Telefone</span><span id="dm-phone">—</span></div>
+      <div class="info-row"><span>Estado</span><span id="dm-status">—</span></div>
+      <div class="info-row"><span>Transacções</span><span id="dm-txns" style="color:var(--green2);font-weight:700;">—</span></div>
+      <div class="info-row"><span>Receita total</span><span id="dm-revenue" style="color:var(--green2);font-weight:700;">—</span></div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="mgmt-btn mgmt-activate" id="dm-btn-activate" onclick="toggleDriverStatus('activate')" style="flex:1;padding:12px;">✓ Activar</button>
+      <button class="mgmt-btn mgmt-suspend" id="dm-btn-suspend" onclick="toggleDriverStatus('suspend')" style="flex:1;padding:12px;">⊘ Suspender</button>
+      <button class="mgmt-btn mgmt-reset" onclick="resetDriverPIN()" style="flex:1;padding:12px;">🔑 Reset PIN</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+Add owner dashboard
