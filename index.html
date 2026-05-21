@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#0B1F3A">
 <title>YelaPay+</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -339,9 +340,29 @@ body{font-family:'DM Sans',sans-serif;color:var(--text);font-size:14px;line-heig
 .error-msg{background:var(--red-bg);border:1px solid rgba(226,75,74,0.2);border-radius:12px;padding:12px 16px;font-size:13px;color:var(--red);text-align:center;margin-top:12px;display:none;}
 .error-msg.show{display:block;}
 
+
+/* ── OFFLINE BANNER ── */
+.offline-banner{position:fixed;top:0;left:0;right:0;z-index:2000;padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600;transform:translateY(-100%);transition:transform 0.3s;backdrop-filter:blur(10px);}
+.offline-banner.show{transform:translateY(0);}
+.offline-banner.offline{background:rgba(226,75,74,0.95);color:#fff;}
+.offline-banner.syncing{background:rgba(201,168,76,0.95);color:#fff;}
+.offline-banner.synced{background:rgba(26,127,90,0.95);color:#fff;}
+.ob-dot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:pulse 1.5s infinite;}
+.sync-queue-badge{position:fixed;bottom:calc(var(--safe-bottom)+80px);right:16px;background:var(--gold);color:#fff;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;display:none;z-index:500;cursor:pointer;}
+.sync-queue-badge.show{display:block;}
+
 </style>
 </head>
 <body>
+
+<!-- OFFLINE BANNER -->
+<div class="offline-banner" id="offline-banner">
+  <span class="ob-dot"></span>
+  <span id="offline-msg">Sem internet — modo offline activo</span>
+</div>
+<div class="sync-queue-badge" id="sync-badge" onclick="syncNow()">
+  ↑ <span id="sync-count">0</span> por sincronizar
+</div>
 
 <!-- ══ WELCOME ══ -->
 <div id="screen-welcome" class="screen active">
@@ -1145,11 +1166,51 @@ function confirmDriverPayment(){
   setTimeout(()=>{ if(activeCharge&&activeCharge.ref===ref) passengerConfirmed(activeCharge); }, 4000);
 }
 
-function passengerConfirmed(charge){
+async function passengerConfirmed(charge){
   if(!charge)return;
   dTotalPax+=charge.pax;dTotalAmt+=charge.total;dTotalTxns++;
-  dTxns.unshift({amount:charge.total,pax:charge.pax,valPerPax:charge.valPerPax,created_at:new Date().toISOString()});
+  const txn={amount:charge.total,pax:charge.pax,valPerPax:charge.valPerPax,created_at:new Date().toISOString()};
+  dTxns.unshift(txn);
   activeCharge=null;
+
+  // Registar transacção — online ou offline
+  const txnData = {
+    reference: charge.ref,
+    driver_id: driverUser?.id||null,
+    driver_name: driverUser?.name||'Motorista',
+    driver_plate: charge.plate,
+    amount: charge.total,
+    commission: Math.ceil(charge.total*0.015),
+    commission_rate: 0.015,
+    pax: charge.pax,
+    val_per_pax: charge.valPerPax,
+    channel: 'qr',
+    model: 'b2c',
+    status: 'completed',
+  };
+  if(isOnline){
+    try{
+      const res = await fetch(`${API}/api/transactions`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(txnData)
+      });
+      if(res.ok){
+        console.log('✅ Transacção registada na API:', charge.ref);
+      } else {
+        await saveOfflineTxn(txnData);
+        updateSyncBadge();
+      }
+    }catch(e){
+      await saveOfflineTxn(txnData);
+      updateSyncBadge();
+      showToast('📵 Guardado localmente','Será sincronizado quando tiver internet');
+    }
+  } else {
+    await saveOfflineTxn(txnData);
+    updateSyncBadge();
+    showToast('📵 Guardado localmente','Será sincronizado quando tiver internet');
+  }
 
   // Mostrar estado confirmado
   setText('qr-confirmed-amt',charge.total.toLocaleString('pt-PT')+' AKZ');
@@ -1293,7 +1354,7 @@ function setPVal(v){
   if(inp)inp.value=v;
 }
 
-function confirmPassengerPayment(){
+async function confirmPassengerPayment(){
   const plate=document.getElementById('p-plate-input').value.trim().toUpperCase();
   const val=parseInt(document.getElementById('p-val-input').value)||selPVal;
   if(!plate){alert('Introduz a matrícula do veículo');return;}
@@ -1301,6 +1362,33 @@ function confirmPassengerPayment(){
   pTxns.unshift({plate,amount:val,channel:'manual',created_at:new Date().toISOString()});
   cancelManualEntry();
   const ref='YP-'+new Date().getFullYear()+'-'+String(txnCounter++).padStart(8,'0');
+
+  // Registar na API real — online ou offline
+  const passTxnData = {
+    reference: ref,
+    driver_plate: plate,
+    passenger_id: passUser?.id||null,
+    amount: val,
+    commission: Math.ceil(val*0.015),
+    commission_rate: 0.015,
+    pax: 1,
+    val_per_pax: val,
+    channel: 'manual',
+    model: 'b2c',
+    status: 'completed',
+  };
+  if(isOnline){
+    try{
+      await fetch(`${API}/api/transactions`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(passTxnData)});
+    }catch(e){
+      await saveOfflineTxn(passTxnData);
+      updateSyncBadge();
+    }
+  } else {
+    await saveOfflineTxn(passTxnData);
+    updateSyncBadge();
+  }
+
   showSuccess(
     'Pagamento efectuado!',val,ref,
     'Veículo',plate,
@@ -1586,6 +1674,156 @@ function loadHistoryPanel(){
     </div>`;
   }).join('');
 }
+
+
+// ── MODO OFFLINE ─────────────────────────────────────────────
+const DB_NAME = 'yelapay_offline';
+const DB_VERSION = 1;
+let db = null;
+let isOnline = navigator.onLine;
+
+// Abrir IndexedDB para guardar transacções offline
+function openDB(){
+  return new Promise((resolve, reject)=>{
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = e=>{
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains('pending_txns')){
+        const store = db.createObjectStore('pending_txns',{keyPath:'localId',autoIncrement:true});
+        store.createIndex('created_at','created_at');
+      }
+    };
+    req.onsuccess = e=>{ db=e.target.result; resolve(db); };
+    req.onerror = ()=>reject(req.error);
+  });
+}
+
+// Guardar transacção na fila offline
+async function saveOfflineTxn(txnData){
+  if(!db) await openDB();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction('pending_txns','readwrite');
+    const store = tx.objectStore('pending_txns');
+    const req = store.add({...txnData, created_at: new Date().toISOString(), synced: false});
+    req.onsuccess = ()=>resolve(req.result);
+    req.onerror = ()=>reject(req.error);
+  });
+}
+
+// Contar transacções pendentes
+async function countPending(){
+  if(!db) await openDB();
+  return new Promise((resolve)=>{
+    const tx = db.transaction('pending_txns','readonly');
+    const store = tx.objectStore('pending_txns');
+    const idx = store.index('created_at');
+    const req = store.count();
+    req.onsuccess = ()=>resolve(req.result);
+    req.onerror = ()=>resolve(0);
+  });
+}
+
+// Obter todas as transacções pendentes
+async function getPendingTxns(){
+  if(!db) await openDB();
+  return new Promise((resolve)=>{
+    const tx = db.transaction('pending_txns','readonly');
+    const store = tx.objectStore('pending_txns');
+    const req = store.getAll();
+    req.onsuccess = ()=>resolve(req.result||[]);
+    req.onerror = ()=>resolve([]);
+  });
+}
+
+// Marcar transacção como sincronizada
+async function markSynced(localId){
+  if(!db) await openDB();
+  return new Promise((resolve)=>{
+    const tx = db.transaction('pending_txns','readwrite');
+    const store = tx.objectStore('pending_txns');
+    const req = store.delete(localId);
+    req.onsuccess = ()=>resolve();
+    req.onerror = ()=>resolve();
+  });
+}
+
+// Sincronizar transacções pendentes com a API
+async function syncNow(){
+  if(!isOnline){ showOfflineBanner('offline'); return; }
+  const pending = await getPendingTxns();
+  if(pending.length===0){ updateSyncBadge(); return; }
+  showOfflineBanner('syncing','A sincronizar '+pending.length+' transacção(ões)...');
+  let synced = 0;
+  for(const txn of pending){
+    try{
+      const {localId, ...data} = txn;
+      const res = await fetch(`${API}/api/transactions`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+      });
+      if(res.ok){
+        await markSynced(localId);
+        synced++;
+      }
+    } catch(e){ /* continuar com próxima */ }
+  }
+  if(synced>0){
+    showOfflineBanner('synced', synced+' transacção(ões) sincronizada(s) com sucesso!');
+    setTimeout(hideOfflineBanner, 3000);
+  }
+  updateSyncBadge();
+}
+
+// Actualizar badge de sincronização
+async function updateSyncBadge(){
+  const count = await countPending();
+  const badge = document.getElementById('sync-badge');
+  const countEl = document.getElementById('sync-count');
+  if(badge && countEl){
+    countEl.textContent = count;
+    badge.classList.toggle('show', count>0);
+  }
+}
+
+// Mostrar banner offline
+function showOfflineBanner(type, msg){
+  const banner = document.getElementById('offline-banner');
+  const msgEl = document.getElementById('offline-msg');
+  if(!banner||!msgEl) return;
+  banner.className = 'offline-banner show '+type;
+  msgEl.textContent = msg || (
+    type==='offline' ? '📵 Sem internet — pagamentos guardados localmente' :
+    type==='syncing' ? '🔄 A sincronizar com o servidor...' :
+    '✅ Sincronizado com sucesso!'
+  );
+}
+
+function hideOfflineBanner(){
+  const banner = document.getElementById('offline-banner');
+  if(banner) banner.classList.remove('show');
+}
+
+// Monitorizar estado da rede
+window.addEventListener('online', async ()=>{
+  isOnline = true;
+  hideOfflineBanner();
+  showToast('📶 Internet restaurada!','A sincronizar pagamentos...');
+  setTimeout(syncNow, 1500);
+});
+
+window.addEventListener('offline', ()=>{
+  isOnline = false;
+  showOfflineBanner('offline');
+  showToast('📵 Sem internet','Os pagamentos ficam guardados localmente');
+});
+
+// Inicializar DB quando app abre
+openDB().then(()=>{
+  updateSyncBadge();
+  // Se online ao abrir, sincronizar pendentes
+  if(isOnline) setTimeout(syncNow, 3000);
+}).catch(e=>console.warn('IndexedDB não disponível:', e));
 
 // ── HELPERS ──
 function setText(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
@@ -1960,6 +2198,28 @@ function setText(id,val){const el=document.getElementById(id);if(el)el.textConte
   </div>
 </div>
 
+
+<script>
+// Registar Service Worker para modo offline
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('/yelapay-platform/sw.js')
+      .then(reg => {
+        console.log('✅ YelaPay+ SW registado:', reg.scope);
+        // Ouvir mensagens do SW
+        navigator.serviceWorker.addEventListener('message', e=>{
+          if(e.data?.type==='SYNC_NOW') syncNow();
+        });
+        // Registar sync em background
+        if('sync' in reg) {
+          reg.sync.register('sync-transactions').catch(()=>{});
+        }
+      })
+      .catch(err => console.warn('SW não registado:', err));
+  });
+}
+</script>
+
 </body>
 </html>
-Add YelaPay+ PWA app V5
+Add offline mode V5
