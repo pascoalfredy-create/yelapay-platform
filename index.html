@@ -1751,9 +1751,14 @@ async function markSynced(localId){
 async function syncNow(){
   if(!isOnline){ showOfflineBanner('offline'); return; }
   const pending = await getPendingTxns();
-  if(pending.length===0){ updateSyncBadge(); return; }
+  if(pending.length===0){
+    updateSyncBadge();
+    hideOfflineBanner(); // Esconder se não há nada a sincronizar
+    return;
+  }
   showOfflineBanner('syncing','A sincronizar '+pending.length+' transacção(ões)...');
   let synced = 0;
+  let failed = 0;
   for(const txn of pending){
     try{
       const {localId, ...data} = txn;
@@ -1765,14 +1770,21 @@ async function syncNow(){
       if(res.ok){
         await markSynced(localId);
         synced++;
+      } else {
+        failed++;
       }
-    } catch(e){ /* continuar com próxima */ }
+    } catch(e){ failed++; }
   }
+  await updateSyncBadge();
   if(synced>0){
-    showOfflineBanner('synced', synced+' transacção(ões) sincronizada(s) com sucesso!');
+    showOfflineBanner('synced', '✅ '+synced+' pagamento(s) sincronizado(s)!');
+    setTimeout(hideOfflineBanner, 2500); // Esconder após 2.5 segundos
+  } else if(failed>0){
+    showOfflineBanner('offline', '⚠️ Não foi possível sincronizar. Tenta mais tarde.');
     setTimeout(hideOfflineBanner, 3000);
+  } else {
+    hideOfflineBanner();
   }
-  updateSyncBadge();
 }
 
 // Actualizar badge de sincronização
@@ -1797,6 +1809,11 @@ function showOfflineBanner(type, msg){
     type==='syncing' ? '🔄 A sincronizar com o servidor...' :
     '✅ Sincronizado com sucesso!'
   );
+  // Auto-esconder mensagens de sucesso e sincronização após 3 segundos
+  if(type==='synced'){
+    clearTimeout(window._bannerTimer);
+    window._bannerTimer = setTimeout(hideOfflineBanner, 2500);
+  }
 }
 
 function hideOfflineBanner(){
@@ -1808,13 +1825,19 @@ function hideOfflineBanner(){
 window.addEventListener('online', async ()=>{
   isOnline = true;
   hideOfflineBanner();
-  showToast('📶 Internet restaurada!','A sincronizar pagamentos...');
-  setTimeout(syncNow, 1500);
+  const pending = await countPending();
+  if(pending > 0){
+    showToast('📶 Internet restaurada!','A sincronizar '+pending+' pagamento(s)...');
+    setTimeout(syncNow, 1500);
+  } else {
+    showToast('📶 Internet restaurada!','Ligado ao servidor YelaPay+');
+  }
 });
 
 window.addEventListener('offline', ()=>{
   isOnline = false;
-  showOfflineBanner('offline');
+  showOfflineBanner('offline','📵 Sem internet — pagamentos guardados localmente');
+  setTimeout(hideOfflineBanner, 4000); // Esconder após 4 segundos
   showToast('📵 Sem internet','Os pagamentos ficam guardados localmente');
 });
 
@@ -2200,26 +2223,39 @@ function setText(id,val){const el=document.getElementById(id);if(el)el.textConte
 
 
 <script>
-// Registar Service Worker para modo offline
+// Registar Service Worker — apenas no GitHub Pages ou servidor real
 if('serviceWorker' in navigator){
-  window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('/yelapay-platform/sw.js')
-      .then(reg => {
-        console.log('✅ YelaPay+ SW registado:', reg.scope);
-        // Ouvir mensagens do SW
-        navigator.serviceWorker.addEventListener('message', e=>{
-          if(e.data?.type==='SYNC_NOW') syncNow();
+  const isGitHubPages = location.hostname.includes('github.io');
+  const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const isNetlify = location.hostname.includes('netlify.app');
+
+  if(isGitHubPages || isLocalhost || isNetlify){
+    const swPath = isGitHubPages
+      ? '/yelapay-platform/sw.js'
+      : '/sw.js';
+
+    window.addEventListener('load', ()=>{
+      navigator.serviceWorker.register(swPath)
+        .then(reg => {
+          console.log('✅ YelaPay+ modo offline activo');
+          navigator.serviceWorker.addEventListener('message', e=>{
+            if(e.data?.type==='SYNC_NOW') syncNow();
+          });
+          if('sync' in reg){
+            reg.sync.register('sync-transactions').catch(()=>{});
+          }
+        })
+        .catch(err => {
+          // Ignorar silenciosamente — o modo offline via IndexedDB funciona mesmo sem SW
+          console.log('SW não disponível — modo offline básico activo');
         });
-        // Registar sync em background
-        if('sync' in reg) {
-          reg.sync.register('sync-transactions').catch(()=>{});
-        }
-      })
-      .catch(err => console.warn('SW não registado:', err));
-  });
+    });
+  } else {
+    // Fora do GitHub Pages — modo offline básico via IndexedDB funciona na mesma
+    console.log('YelaPay+ — modo offline básico activo (sem SW)');
+  }
 }
 </script>
 
 </body>
 </html>
-Add offline mode V5
