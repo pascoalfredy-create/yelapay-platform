@@ -1,0 +1,20 @@
+{
+  "name": "YelaPay+",
+  "short_name": "YelaPay+",
+  "description": "Pagamento digital para transporte informal em Angola",
+  "start_url": "/yelapay-platform/",
+  "display": "standalone",
+  "background_color": "#0B1F3A",
+  "theme_color": "#0B1F3A",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%231A7F5A'/%3E%3Cpath d='M48 96L80 128L144 64' stroke='white' stroke-width='20' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["finance", "utilities"],
+  "lang": "pt"
+}
+Add PWA manifest
