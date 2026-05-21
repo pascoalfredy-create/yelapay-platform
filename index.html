@@ -1145,7 +1145,7 @@ function confirmDriverPayment(){
   closePayModal();
 
   // Guardar cobrança activa
-  const ref='YP-'+new Date().getFullYear()+'-'+String(txnCounter++).padStart(8,'0');
+  const ref='YP-'+new Date().getFullYear()+'-'+Date.now()+'-'+Math.floor(Math.random()*1000);
   activeCharge={total,pax:selPax,valPerPax:selVal,ref,plate:driverUser?.plate||'—'};
 
   // Actualizar UI — mostrar QR com valor
@@ -1317,7 +1317,7 @@ function confirmQRPayment(){
   const plate=qrDriverData.plate;
   pTxns.unshift({plate,driverName:qrDriverData.name,amount:val,channel:'qr',created_at:new Date().toISOString()});
   cancelQRScan();
-  const ref='YP-'+new Date().getFullYear()+'-'+String(txnCounter++).padStart(8,'0');
+  const ref='YP-'+new Date().getFullYear()+'-'+Date.now()+'-'+Math.floor(Math.random()*1000);
   showSuccess(
     'Pagamento efectuado!',val,ref,
     'Motorista',qrDriverData.name,
@@ -1361,7 +1361,7 @@ async function confirmPassengerPayment(){
   if(val<=0){alert('Introduz o valor a pagar');return;}
   pTxns.unshift({plate,amount:val,channel:'manual',created_at:new Date().toISOString()});
   cancelManualEntry();
-  const ref='YP-'+new Date().getFullYear()+'-'+String(txnCounter++).padStart(8,'0');
+  const ref='YP-'+new Date().getFullYear()+'-'+Date.now()+'-'+Math.floor(Math.random()*1000);
 
   // Registar na API real — online ou offline
   const passTxnData = {
@@ -1770,6 +1770,11 @@ async function syncNow(){
       if(res.ok){
         await markSynced(localId);
         synced++;
+      } else if(res.status===409||res.status===400){
+        // Referência duplicada — já existe na BD, marcar como sincronizado
+        await markSynced(localId);
+        synced++;
+        console.log('Transacção já existia na BD — removida da fila local');
       } else {
         failed++;
       }
@@ -2259,3 +2264,4 @@ if('serviceWorker' in navigator){
 
 </body>
 </html>
+Fix offline sync references
