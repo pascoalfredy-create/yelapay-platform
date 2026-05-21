@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="YelaPay+">
+<meta name="theme-color" content="#0B1F3A">
+<title>YelaPay+</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --navy:#0B1F3A;--navy2:#152E52;
+  --green:#1A7F5A;--green2:#27C49A;--green-bg:rgba(39,196,154,0.12);
+  --gold:#C9A84C;--gold-bg:rgba(201,168,76,0.12);
+  --red:#E24B4A;--red-bg:rgba(226,75,74,0.12);
+  --blue:#2563EB;--blue-bg:rgba(37,99,235,0.12);
+  --purple-bg:rgba(188,140,255,0.1);
+  --text:#E8EFF6;--text2:#8BA5C0;--text3:#4A6580;
+  --surface:rgba(255,255,255,0.05);--surface2:rgba(255,255,255,0.08);
+  --border:rgba(255,255,255,0.08);
+  --safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;background:var(--navy);}
+body{font-family:'DM Sans',sans-serif;color:var(--text);font-size:14px;line-height:1.5;position:fixed;width:100%;height:100%;}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden;}
+.screen.active{display:flex;}
+
+/* ── WELCOME ── */
+#screen-welcome{background:linear-gradient(160deg,#0B1F3A 0%,#0D2640 50%,#091829 100%);justify-content:center;align-items:center;padding:40px 28px;gap:0;}
+.wl-logo{text-align:center;margin-bottom:48px;}
+.logo-mark{width:72px;height:72px;border-radius:24px;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 20px 60px rgba(39,196,154,0.3);}
+.logo-mark svg{width:36px;height:36px;}
+.wl-logo h1{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--text);letter-spacing:-0.02em;}
+.wl-logo h1 span{color:var(--green2);}
+.wl-logo p{font-size:13px;color:var(--text2);margin-top:6px;font-weight:300;}
+.role-cards{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px;}
+.role-card{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:18px;padding:20px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:all 0.2s;backdrop-filter:blur(20px);}
+.role-card:active{transform:scale(0.97);}
+.role-card.driver{border-color:rgba(39,196,154,0.25);}
+.role-card.passenger{border-color:rgba(201,168,76,0.25);}
+.role-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.role-icon.driver{background:var(--green-bg);}
+.role-icon.passenger{background:var(--gold-bg);}
+.role-info{flex:1;}
+.role-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:3px;}
+.role-desc{font-size:12px;color:var(--text2);line-height:1.4;}
+.role-arrow{color:var(--text3);font-size:20px;}
+
+/* ── FORMS ── */
+.form-screen{background:linear-gradient(160deg,#0B1F3A,#091829);justify-content:flex-start;padding:calc(var(--safe-top)+16px) 0 0;}
+.form-hdr{padding:8px 20px 20px;display:flex;align-items:center;gap:12px;}
+.back-btn{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text2);flex-shrink:0;}
+.form-hdr-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;}
+.form-body{flex:1;overflow-y:auto;padding:0 20px 40px;-webkit-overflow-scrolling:touch;}
+.form-body::-webkit-scrollbar{display:none;}
+.f-group{margin-bottom:16px;}
+.f-lbl{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);margin-bottom:8px;display:block;}
+.f-inp{width:100%;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:13px;padding:15px 16px;font-size:16px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s;}
+.f-inp:focus{border-color:var(--green2);}
+.f-inp::placeholder{color:var(--text3);}
+.f-inp.upper{text-transform:uppercase;letter-spacing:0.05em;}
+.type-row{display:flex;gap:10px;}
+.type-btn{flex:1;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:13px;color:var(--text2);font-family:'Syne',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.type-btn span{font-size:22px;}
+.type-btn.active{background:var(--green-bg);border-color:rgba(39,196,154,0.4);color:var(--green2);}
+.pin-row{display:flex;gap:10px;justify-content:center;}
+.pin-inp{width:44px;height:52px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:13px;text-align:center;font-size:24px;font-weight:700;color:var(--text);font-family:'Syne',sans-serif;outline:none;transition:border-color 0.2s;}
+.pin-inp:focus{border-color:var(--green2);}
+.f-hint{font-size:11px;color:var(--text3);margin-top:6px;line-height:1.5;}
+.btn-full{width:100%;padding:17px;background:linear-gradient(135deg,var(--green),#16A870);border:none;border-radius:13px;color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(26,127,90,0.3);transition:transform 0.15s;margin-top:8px;}
+.btn-full:active{transform:scale(0.97);}
+.btn-secondary{width:100%;padding:13px;background:none;border:1px solid var(--border);border-radius:13px;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-top:10px;}
+.divider{display:flex;align-items:center;gap:12px;margin:16px 0;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.divider span{font-size:11px;color:var(--text3);}
+.ussd-box{background:var(--gold-bg);border:1px solid rgba(201,168,76,0.25);border-radius:13px;padding:14px 16px;margin-top:16px;}
+.ussd-title{font-size:12px;font-weight:600;color:var(--gold);margin-bottom:4px;}
+.ussd-code{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--gold);letter-spacing:0.05em;}
+.ussd-sub{font-size:11px;color:var(--text2);margin-top:3px;}
+
+/* ── DRIVER APP ── */
+#screen-driver{background:#080F1A;}
+.app-hdr{background:linear-gradient(180deg,#0B1F3A,#091829);padding:calc(var(--safe-top)+16px) 20px 18px;flex-shrink:0;}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.greet small{display:block;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:2px;}
+.greet strong{font-family:'Syne',sans-serif;font-size:19px;font-weight:700;}
+.av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff;}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;background:var(--green-bg);color:var(--green2);border:1px solid rgba(39,196,154,0.2);}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green2);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.plate-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:8px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;background:rgba(255,255,255,0.08);color:var(--text);letter-spacing:0.08em;border:1px solid rgba(255,255,255,0.12);}
+.scrl{flex:1;overflow-y:auto;padding:14px 16px 100px;-webkit-overflow-scrolling:touch;}
+.scrl::-webkit-scrollbar{display:none;}
+.install-banner{background:linear-gradient(135deg,rgba(201,168,76,0.1),rgba(201,168,76,0.05));border:1px solid rgba(201,168,76,0.25);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.ib-icon{font-size:22px;flex-shrink:0;}
+.ib-text strong{display:block;font-size:12px;color:var(--gold);margin-bottom:2px;}
+.ib-text small{font-size:11px;color:var(--text2);line-height:1.4;}
+.ib-close{color:var(--text3);font-size:22px;cursor:pointer;flex-shrink:0;}
+.today{background:linear-gradient(135deg,var(--green),#0D5C3A);border-radius:18px;padding:18px 20px;margin-bottom:14px;position:relative;overflow:hidden;}
+.today::after{content:'';position:absolute;right:-24px;top:-24px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.07);}
+.today-lbl{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:3px;}
+.today-amt{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:#fff;letter-spacing:-0.03em;line-height:1;}
+.today-sub{font-size:11px;color:rgba(255,255,255,0.55);margin:3px 0 14px;}
+.stat-row{display:flex;gap:10px;}
+.stat{flex:1;background:rgba(255,255,255,0.12);border-radius:11px;padding:10px 12px;}
+.stat-val{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;}
+.stat-lbl{font-size:10px;color:rgba(255,255,255,0.55);margin-top:1px;}
+.sec-title{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);margin:18px 0 10px;}
+.txn-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:0 14px;}
+.txn{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.txn:last-child{border-bottom:none;}
+.txn-ic{width:38px;height:38px;border-radius:12px;background:var(--green-bg);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.txn-info{flex:1;min-width:0;}
+.txn-name{font-size:13px;font-weight:500;color:var(--text);}
+.txn-time{font-size:11px;color:var(--text2);}
+.txn-amt{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--green2);flex-shrink:0;}
+.empty{padding:24px 14px;text-align:center;color:var(--text2);font-size:13px;line-height:1.7;}
+
+/* QR TAB */
+.qr-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;align-items:center;padding:16px 16px 100px;}
+.qr-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;text-align:center;width:100%;max-width:320px;margin-bottom:12px;}
+.qr-card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px;}
+.qr-card-sub{font-size:11px;color:var(--text2);margin-bottom:14px;}
+.qr-box{background:#fff;border-radius:14px;padding:14px;display:inline-block;margin-bottom:12px;}
+.qr-ref{font-size:12px;color:var(--text2);letter-spacing:0.08em;font-family:'Syne',sans-serif;font-weight:700;}
+.qr-info{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;width:100%;max-width:320px;margin-bottom:12px;}
+.qr-info-title{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);margin-bottom:10px;}
+.qr-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.qr-row:last-child{border-bottom:none;}
+.qr-row span:first-child{color:var(--text2);}
+.qr-row span:last-child{color:var(--text);font-weight:500;}
+
+/* PAYMENT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.show{display:flex;}
+.modal{background:#0D1A28;border:1px solid var(--border);border-radius:24px 24px 0 0;padding:20px 20px calc(var(--safe-bottom)+24px);width:100%;max-width:480px;}
+.modal-handle{width:40px;height:4px;background:var(--text3);border-radius:2px;margin:0 auto 20px;}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:4px;}
+.modal-sub{font-size:12px;color:var(--text2);margin-bottom:20px;}
+.pax-section{margin-bottom:18px;}
+.pax-label{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);margin-bottom:10px;display:block;}
+.pax-row{display:flex;gap:8px;}
+.pax-btn{flex:1;padding:12px 4px;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text2);font-family:'Syne',sans-serif;font-size:16px;font-weight:700;cursor:pointer;text-align:center;transition:all 0.15s;}
+.pax-btn.active{background:var(--green-bg);border-color:rgba(39,196,154,0.4);color:var(--green2);}
+.val-section{margin-bottom:18px;}
+.val-presets{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.val-preset{padding:8px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.val-preset.active{background:var(--green-bg);border-color:rgba(39,196,154,0.4);color:var(--green2);}
+.val-custom{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;}
+.val-custom input{flex:1;background:none;border:none;outline:none;font-size:18px;font-family:'Syne',sans-serif;font-weight:700;color:var(--text);width:100%;}
+.val-custom input::placeholder{color:var(--text3);}
+.val-custom span{font-size:13px;color:var(--text2);flex-shrink:0;}
+.pay-summary{background:var(--green-bg);border:1px solid rgba(39,196,154,0.2);border-radius:14px;padding:14px 16px;margin-bottom:16px;}
+.pay-summary-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;}
+.pay-summary-row span:first-child{color:var(--text2);}
+.pay-summary-row.total{margin-top:8px;padding-top:10px;border-top:1px solid rgba(39,196,154,0.2);}
+.pay-summary-row.total span:last-child{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--green2);}
+.pay-summary-row.total span:first-child{color:var(--text);font-weight:600;}
+.btn-confirm{width:100%;padding:17px;background:linear-gradient(135deg,var(--green),#16A870);border:none;border-radius:14px;color:#fff;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(26,127,90,0.3);}
+.btn-cancel{width:100%;padding:13px;background:none;border:none;color:var(--text2);font-size:13px;cursor:pointer;margin-top:8px;}
+
+/* PROFILE DRIVER */
+.prof-hdr{background:var(--navy);padding:calc(var(--safe-top)+20px) 20px 24px;text-align:center;flex-shrink:0;}
+.prof-av-big{width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:#fff;margin:0 auto 12px;}
+.prof-plate{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:0.06em;}
+.prof-name{font-size:14px;color:var(--text2);margin-top:4px;}
+.prof-role-pill{display:inline-block;margin-top:10px;padding:5px 16px;border-radius:20px;font-size:11px;font-weight:600;background:var(--green-bg);color:var(--green2);border:1px solid rgba(39,196,154,0.2);}
+.prof-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;}
+.prof-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--surface);border-radius:14px;margin-bottom:10px;border:1px solid var(--border);}
+.prof-l{display:flex;align-items:center;gap:12px;}
+.prof-ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+.prof-txt strong{display:block;font-size:13px;color:var(--text);}
+.prof-txt small{font-size:11px;color:var(--text2);}
+.chev{color:var(--text3);font-size:18px;}
+.btn-logout{width:100%;margin-top:6px;margin-bottom:32px;padding:15px;background:var(--red-bg);border:1px solid rgba(226,75,74,0.2);border-radius:13px;color:var(--red);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
+
+/* ── PASSENGER APP ── */
+#screen-passenger{background:#080F1A;}
+.pass-hdr{background:linear-gradient(180deg,#1A1A0B,#0F0F06);padding:calc(var(--safe-top)+16px) 20px 18px;flex-shrink:0;border-bottom:1px solid rgba(201,168,76,0.1);}
+.pass-hdr .hdr-top{margin-bottom:14px;}
+.pass-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#E8A020);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff;}
+.pass-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;background:var(--gold-bg);color:var(--gold);border:1px solid rgba(201,168,76,0.2);}
+
+/* SCANNER */
+.scanner-area{background:#000;position:relative;overflow:hidden;flex-shrink:0;}
+.scanner-area video{width:100%;display:block;object-fit:cover;}
+.scanner-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.scan-frame{width:200px;height:200px;position:relative;}
+.scan-corner{position:absolute;width:24px;height:24px;border-color:var(--gold);border-style:solid;border-width:0;}
+.scan-corner.tl{top:0;left:0;border-top-width:3px;border-left-width:3px;border-radius:4px 0 0 0;}
+.scan-corner.tr{top:0;right:0;border-top-width:3px;border-right-width:3px;border-radius:0 4px 0 0;}
+.scan-corner.bl{bottom:0;left:0;border-bottom-width:3px;border-left-width:3px;border-radius:0 0 0 4px;}
+.scan-corner.br{bottom:0;right:0;border-bottom-width:3px;border-right-width:3px;border-radius:0 0 4px 0;}
+.scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:scanMove 2s ease-in-out infinite;}
+@keyframes scanMove{0%,100%{top:10px;opacity:0.7;}50%{top:185px;opacity:1;}}
+.scan-hint{position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:12px;color:rgba(255,255,255,0.7);}
+
+/* PASS CONTENT */
+.pass-content{flex:1;overflow-y:auto;padding:16px 16px 100px;-webkit-overflow-scrolling:touch;}
+.pass-content::-webkit-scrollbar{display:none;}
+.scan-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;text-align:center;margin-bottom:14px;}
+.scan-card-icon{font-size:40px;margin-bottom:10px;}
+.scan-card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:6px;}
+.scan-card-sub{font-size:12px;color:var(--text2);line-height:1.5;}
+.btn-scan{width:100%;padding:16px;background:linear-gradient(135deg,var(--gold),#E8A020);border:none;border-radius:13px;color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:12px;}
+
+/* CONFIRM PAYMENT PASSENGER */
+.confirm-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:14px;}
+.confirm-driver{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.confirm-driver-av{width:48px;height:48px;border-radius:50%;background:var(--green-bg);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--green2);flex-shrink:0;}
+.confirm-driver-info strong{display:block;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
+.confirm-driver-info small{font-size:12px;color:var(--text2);}
+.confirm-plate{display:inline-block;padding:3px 10px;background:rgba(255,255,255,0.08);border-radius:6px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.06em;margin-top:4px;}
+.confirm-amount{text-align:center;padding:16px 0;}
+.confirm-amount small{font-size:11px;color:var(--text2);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.08em;}
+.confirm-amount strong{font-family:'Syne',sans-serif;font-size:40px;font-weight:800;color:var(--green2);}
+.confirm-detail{padding:12px 0;}
+.conf-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.conf-row:last-child{border-bottom:none;}
+.conf-row span:first-child{color:var(--text2);}
+
+/* PASS HISTORY */
+.pass-txn{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.pass-txn:last-child{border-bottom:none;}
+.pass-txn-ic{width:38px;height:38px;border-radius:12px;background:var(--gold-bg);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.pass-txn-info{flex:1;}
+.pass-txn-name{font-size:13px;font-weight:500;color:var(--text);}
+.pass-txn-sub{font-size:11px;color:var(--text2);}
+.pass-txn-amt{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--red);flex-shrink:0;}
+
+/* PROFILE PASSENGER */
+.pass-prof-hdr{background:linear-gradient(180deg,#1A1A0B,#0F0F06);padding:calc(var(--safe-top)+20px) 20px 24px;text-align:center;flex-shrink:0;}
+.pass-prof-av{width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#E8A020);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:#fff;margin:0 auto 12px;}
+.pass-role-pill{display:inline-block;margin-top:10px;padding:5px 16px;border-radius:20px;font-size:11px;font-weight:600;background:var(--gold-bg);color:var(--gold);border:1px solid rgba(201,168,76,0.2);}
+
+/* BOTTOM NAV */
+.bnav{position:absolute;bottom:0;left:0;right:0;background:rgba(8,15,26,0.96);border-top:1px solid var(--border);backdrop-filter:blur(20px);padding:10px 0 calc(var(--safe-bottom)+10px);display:flex;justify-content:space-around;}
+.bnav.gold{background:rgba(10,10,4,0.96);}
+.nb{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;padding:6px 20px;cursor:pointer;color:var(--text3);transition:color 0.2s;}
+.nb.active{color:var(--green2);}
+.nb.gold-active.active{color:var(--gold);}
+.nb svg{width:23px;height:23px;}
+.nb span{font-size:10px;font-weight:500;}
+
+/* SUCCESS */
+.success-overlay{position:fixed;inset:0;background:#080F1A;z-index:600;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;}
+.success-overlay.show{display:flex;}
+.success-circle{width:80px;height:80px;border-radius:50%;background:var(--green-bg);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:36px;animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes popIn{from{transform:scale(0);}to{transform:scale(1);}}
+.success-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:8px;text-align:center;}
+.success-amt{font-family:'Syne',sans-serif;font-size:44px;font-weight:800;color:var(--green2);letter-spacing:-0.03em;margin-bottom:4px;}
+.success-ref{font-size:11px;color:var(--text3);font-family:monospace;margin-bottom:28px;}
+.success-detail{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;width:100%;max-width:320px;margin-bottom:24px;}
+.sd-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.sd-row:last-child{border-bottom:none;}
+.sd-row span:first-child{color:var(--text2);}
+.sd-row span:last-child{color:var(--text);font-weight:500;}
+
+/* TOAST */
+.toast{position:fixed;top:calc(var(--safe-top)+14px);left:14px;right:14px;background:linear-gradient(135deg,#1A3D28,#0D2A1A);border:1px solid rgba(39,196,154,0.3);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px;z-index:1000;transform:translateY(-130px);opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.toast.show{transform:translateY(0);opacity:1;}
+.t-ic{width:38px;height:38px;background:var(--green-bg);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.t-txt strong{display:block;font-size:13px;color:var(--text);font-weight:600;}
+.t-txt small{font-size:11px;color:var(--text2);}
+
+/* ── PROFILE MODALS ── */
+.prof-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:700;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);}
+.prof-modal-overlay.show{display:flex;}
+.prof-modal{background:#0D1A28;border:1px solid var(--border);border-radius:24px 24px 0 0;padding:20px 20px calc(var(--safe-bottom)+28px);width:100%;max-width:480px;max-height:85vh;overflow-y:auto;}
+.prof-modal-handle{width:40px;height:4px;background:var(--text3);border-radius:2px;margin:0 auto 18px;}
+.prof-modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:4px;}
+.prof-modal-sub{font-size:12px;color:var(--text2);margin-bottom:20px;}
+.prof-modal-section{margin-bottom:16px;}
+.prof-modal-label{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);margin-bottom:8px;display:block;}
+.prof-modal-input{width:100%;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:13px;padding:14px 16px;font-size:15px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s;margin-bottom:4px;}
+.prof-modal-input:focus{border-color:var(--green2);}
+.prof-modal-input::placeholder{color:var(--text3);}
+.prof-modal-info{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px;}
+.pmi-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.pmi-row:last-child{border-bottom:none;}
+.pmi-row span:first-child{color:var(--text2);}
+.pmi-row span:last-child{color:var(--text);font-weight:500;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--surface);border-radius:12px;margin-bottom:10px;border:1px solid var(--border);}
+.toggle-label strong{display:block;font-size:13px;color:var(--text);}
+.toggle-label small{font-size:11px;color:var(--text2);}
+.toggle{width:44px;height:26px;border-radius:13px;background:var(--green);border:none;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform 0.2s;}
+.toggle.off{background:var(--text3);}
+.toggle.off::after{transform:translateX(0);}
+.toggle.on::after{transform:translateX(18px);}
+.report-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+.report-card-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;}
+.report-stat-row{display:flex;gap:10px;margin-bottom:10px;}
+.report-stat{flex:1;background:rgba(255,255,255,0.04);border-radius:10px;padding:10px 12px;text-align:center;}
+.report-stat-val{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--green2);}
+.report-stat-lbl{font-size:10px;color:var(--text2);margin-top:2px;}
+.btn-modal-confirm{width:100%;padding:16px;background:linear-gradient(135deg,var(--green),#16A870);border:none;border-radius:13px;color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;}
+.btn-modal-cancel{width:100%;padding:12px;background:none;border:none;color:var(--text2);font-size:13px;cursor:pointer;margin-top:6px;}
+.pin-row-small{display:flex;gap:8px;justify-content:center;margin:8px 0;}
+.pin-inp-small{width:48px;height:52px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:12px;text-align:center;font-size:20px;font-weight:700;color:var(--text);font-family:'Syne',sans-serif;outline:none;transition:border-color 0.2s;}
+.pin-inp-small:focus{border-color:var(--green2);}
+.notif-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;}
+.notif-on{background:var(--green-bg);color:var(--green2);}
+.notif-off{background:var(--surface2);color:var(--text3);}
+
+/* ── PROFILE PANELS ── */
+.prof-panel{position:fixed;inset:0;background:#080F1A;z-index:700;display:none;flex-direction:column;}
+.prof-panel.show{display:flex;}
+.panel-hdr{background:var(--navy);padding:calc(var(--safe-top)+14px) 20px 16px;display:flex;align-items:center;gap:14px;flex-shrink:0;border-bottom:1px solid var(--border);}
+.panel-back{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text2);flex-shrink:0;}
+.panel-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;}
+.panel-body{flex:1;overflow-y:auto;padding:20px 20px calc(var(--safe-bottom)+40px);-webkit-overflow-scrolling:touch;}
+.panel-body::-webkit-scrollbar{display:none;}
+.panel-section{margin-bottom:24px;}
+.panel-section-title{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text2);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--surface);border-radius:12px;margin-bottom:8px;border:1px solid var(--border);}
+.toggle-info strong{display:block;font-size:13px;color:var(--text);}
+.toggle-info small{font-size:11px;color:var(--text2);}
+.toggle{width:44px;height:24px;border-radius:12px;background:var(--text3);border:none;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;}
+.toggle.on{background:var(--green);}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left 0.2s;}
+.toggle.on::after{left:23px;}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.info-row:last-child{border-bottom:none;}
+.info-row span:first-child{color:var(--text2);}
+.info-row span:last-child{color:var(--text);font-weight:500;}
+.report-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.report-ic{width:38px;height:38px;border-radius:11px;background:var(--green-bg);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.report-info{flex:1;}
+.report-name{font-size:13px;font-weight:500;color:var(--text);}
+.report-sub{font-size:11px;color:var(--text2);}
+.report-amt{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--green2);}
+.success-msg{background:var(--green-bg);border:1px solid rgba(39,196,154,0.2);border-radius:12px;padding:12px 16px;font-size:13px;color:var(--green2);text-align:center;margin-top:12px;display:none;}
+.success-msg.show{display:block;}
+.error-msg{background:var(--red-bg);border:1px solid rgba(226,75,74,0.2);border-radius:12px;padding:12px 16px;font-size:13px;color:var(--red);text-align:center;margin-top:12px;display:none;}
+.error-msg.show{display:block;}
+
+</style>
+</head>
+<body>
+
+<!-- ══ WELCOME ══ -->
+<div id="screen-welcome" class="screen active">
+  <div class="wl-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 36 36" fill="none">
+        <path d="M10 18L16 24L26 12" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1>Yela<span>Pay+</span></h1>
+    <p>Pagamento digital para transporte em Angola</p>
+  </div>
+  <div class="role-cards">
+    <div class="role-card driver" onclick="showDriverLogin()">
+      <div class="role-icon driver">🚗</div>
+      <div class="role-info">
+        <div class="role-title">Sou motorista</div>
+        <div class="role-desc">Recebe pagamentos com QR Code · Login por matrícula</div>
+      </div>
+      <span class="role-arrow">›</span>
+    </div>
+    <div class="role-card passenger" onclick="showPassengerLogin()">
+      <div class="role-icon passenger">👤</div>
+      <div class="role-info">
+        <div class="role-title">Sou passageiro</div>
+        <div class="role-desc">Paga a viagem com o telemóvel · Rápido e seguro</div>
+      </div>
+      <span class="role-arrow">›</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DRIVER LOGIN ══ -->
+<div id="screen-driver-login" class="screen form-screen">
+  <div class="form-hdr">
+    <div class="back-btn" onclick="goWelcome()">←</div>
+    <div class="form-hdr-title">Entrar como motorista</div>
+  </div>
+  <div class="form-body">
+    <div class="f-group">
+      <label class="f-lbl">Matrícula do veículo</label>
+      <input class="f-inp upper" type="text" id="d-plate" placeholder="LDA-00-00-HA ou GPL-001-031" autocomplete="off" autocorrect="off" spellcheck="false">
+      <p class="f-hint">Esta é a tua identificação no YelaPay+</p>
+    </div>
+    <div class="f-group">
+      <label class="f-lbl">PIN (4 a 6 dígitos)</label>
+      <div class="pin-row">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="dp1">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="dp2">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="dp3">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="dp4">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="dp5">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="dp6">
+      </div>
+      <p class="f-hint">Entre 4 a 6 dígitos</p>
+    </div>
+    <button class="btn-full" onclick="driverLogin()">Entrar</button>
+    <button class="btn-secondary" onclick="showDriverRegister()">Ainda não tenho conta — Registar</button>
+
+  </div>
+</div>
+
+<!-- ══ DRIVER REGISTER ══ -->
+<div id="screen-driver-register" class="screen form-screen">
+  <div class="form-hdr">
+    <div class="back-btn" onclick="showDriverLogin()">←</div>
+    <div class="form-hdr-title">Cadastro de motorista</div>
+  </div>
+  <div class="form-body">
+    <div class="f-group">
+      <label class="f-lbl">Tipo de veículo</label>
+      <div class="type-row">
+        <button class="type-btn active" id="type-car" onclick="setVehicleType('car')">
+          <span>🚗</span>Carro
+        </button>
+        <button class="type-btn" id="type-moto" onclick="setVehicleType('moto')">
+          <span>🏍️</span>Moto
+        </button>
+      </div>
+    </div>
+    <div class="f-group">
+      <label class="f-lbl">Matrícula</label>
+      <input class="f-inp upper" type="text" id="r-plate" placeholder="LDA-00-00-HA" autocomplete="off" autocorrect="off" spellcheck="false">
+      <p class="f-hint" id="plate-hint">Formato: LDA-00-00-HA ou LD-00-00-HA</p>
+    </div>
+    <div class="f-group">
+      <label class="f-lbl">Nome completo</label>
+      <input class="f-inp" type="text" id="r-name" placeholder="Manuel João da Silva">
+    </div>
+    <div class="f-group">
+      <label class="f-lbl">Número de telefone</label>
+      <input class="f-inp" type="tel" id="r-phone" placeholder="+244 9XX XXX XXX" inputmode="tel">
+      <p class="f-hint">Para receber notificações de pagamento e USSD</p>
+    </div>
+    <div class="f-group">
+      <label class="f-lbl">Criar PIN (4 a 6 dígitos)</label>
+      <div class="pin-row">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="rp1">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="rp2">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="rp3">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="rp4">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="rp5">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="rp6">
+      </div>
+      <p class="f-hint">Escolhe entre 4 a 6 dígitos · Deixa os últimos em branco se preferires 4 ou 5</p>
+    </div>
+    <button class="btn-full" onclick="driverRegister()">Criar conta</button>
+  </div>
+</div>
+
+<!-- ══ PASSENGER LOGIN ══ -->
+<div id="screen-passenger-login" class="screen form-screen">
+  <div class="form-hdr">
+    <div class="back-btn" onclick="goWelcome()">←</div>
+    <div class="form-hdr-title">Entrar como passageiro</div>
+  </div>
+  <div class="form-body">
+    <div class="f-group">
+      <label class="f-lbl">Número de telefone</label>
+      <input class="f-inp" type="tel" id="p-phone" placeholder="+244 9XX XXX XXX" inputmode="tel">
+    </div>
+    <div class="f-group">
+      <label class="f-lbl">PIN (4 a 6 dígitos)</label>
+      <div class="pin-row">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="pp1">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="pp2">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="pp3">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="pp4">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="pp5">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="pp6">
+      </div>
+      <p class="f-hint">Entre 4 a 6 dígitos</p>
+    </div>
+    <button class="btn-full" onclick="passengerLogin()" style="background:linear-gradient(135deg,var(--gold),#E8A020);">Entrar</button>
+    <button class="btn-secondary" onclick="showPassengerRegister()">Ainda não tenho conta — Registar</button>
+
+  </div>
+</div>
+
+<!-- ══ PASSENGER REGISTER ══ -->
+<div id="screen-passenger-register" class="screen form-screen">
+  <div class="form-hdr">
+    <div class="back-btn" onclick="showPassengerLogin()">←</div>
+    <div class="form-hdr-title">Cadastro de passageiro</div>
+  </div>
+  <div class="form-body">
+    <div class="f-group">
+      <label class="f-lbl">Nome completo</label>
+      <input class="f-inp" type="text" id="pr-name" placeholder="Ana Teixeira da Silva">
+    </div>
+    <div class="f-group">
+      <label class="f-lbl">Número de BI (Bilhete de Identidade)</label>
+      <input class="f-inp upper" type="text" id="pr-bi" placeholder="000000000LA000" autocomplete="off" spellcheck="false">
+      <p class="f-hint">O teu número de identificação angolano</p>
+    </div>
+    <div class="f-group">
+      <label class="f-lbl">Número de telefone</label>
+      <input class="f-inp" type="tel" id="pr-phone" placeholder="+244 9XX XXX XXX" inputmode="tel">
+      <p class="f-hint">Para receber recibos e confirmações de pagamento</p>
+    </div>
+    <div class="f-group">
+      <label class="f-lbl">Criar PIN (4 a 6 dígitos)</label>
+      <div class="pin-row">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="prp1">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="prp2">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="prp3">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="prp4">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="prp5">
+        <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="prp6">
+      </div>
+      <p class="f-hint">Escolhe entre 4 a 6 dígitos · Mais dígitos = mais segurança</p>
+    </div>
+    <button class="btn-full" onclick="passengerRegister()" style="background:linear-gradient(135deg,var(--gold),#E8A020);">Criar conta</button>
+  </div>
+</div>
+
+<!-- ══ DRIVER APP ══ -->
+<div id="screen-driver" class="screen">
+  <div id="dtab-home" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+    <div class="app-hdr">
+      <div class="hdr-top">
+        <div class="greet"><small>Bem-vindo</small><strong id="d-uname">Motorista</strong></div>
+        <div class="av" id="d-uav">M</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="pill"><span class="dot"></span> Online</span>
+        <span class="plate-badge" id="d-plate-badge">—</span>
+      </div>
+    </div>
+    <div class="scrl">
+      <div class="install-banner" id="ib">
+        <div class="ib-icon">📲</div>
+        <div class="ib-text">
+          <strong>Instalar no iPhone</strong>
+          <small>Safari → <strong style="color:var(--gold)">Partilhar</strong> → <strong style="color:var(--gold)">Adicionar ao ecrã inicial</strong></small>
+        </div>
+        <span class="ib-close" onclick="document.getElementById('ib').style.display='none'">×</span>
+      </div>
+      <div class="today">
+        <div class="today-lbl">Receita de hoje</div>
+        <div class="today-amt" id="d-amt">0 AKZ</div>
+        <div class="today-sub" id="d-sub">0 passageiros hoje</div>
+        <div class="stat-row">
+          <div class="stat"><div class="stat-val" id="d-pax">0</div><div class="stat-lbl">Passageiros</div></div>
+          <div class="stat"><div class="stat-val" id="d-txns">0</div><div class="stat-lbl">Transacções</div></div>
+          <div class="stat"><div class="stat-val" id="d-avg">0 AKZ</div><div class="stat-lbl">Média/viagem</div></div>
+        </div>
+      </div>
+      <div class="sec-title">Últimas transacções</div>
+      <div class="txn-box" id="d-txn-list">
+        <div class="empty">Sem transacções ainda.<br>Vai ao separador <strong style="color:var(--green2)">QR Code</strong><br>para receber o primeiro pagamento.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="dtab-qr" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+    <div class="app-hdr">
+      <div class="hdr-top">
+        <div class="greet"><small>O teu QR Code</small><strong>Mostrar ao passageiro</strong></div>
+        <span class="plate-badge" id="d-plate-badge2">—</span>
+      </div>
+    </div>
+    <div class="qr-scroll">
+      <div class="qr-card">
+        <div class="qr-card-title">QR Code YelaPay+</div>
+        <div class="qr-card-sub">O passageiro aponta a câmara para pagar</div>
+        <div class="qr-box"><canvas id="qr-c" width="200" height="200"></canvas></div>
+        <div class="qr-ref" id="qr-ref">A gerar...</div>
+      </div>
+      <!-- Estado 1: QR permanente (sem valor) -->
+      <div id="qr-state-idle" style="width:100%;max-width:320px;">
+        <div class="qr-info" style="margin-bottom:12px;">
+          <div class="qr-info-title">Informação do motorista</div>
+          <div class="qr-row"><span>Nome</span><span id="qi-name">—</span></div>
+          <div class="qr-row"><span>Matrícula</span><span id="qi-plate">—</span></div>
+          <div class="qr-row"><span>Telefone</span><span id="qi-phone">—</span></div>
+          <div class="qr-row"><span>Liquidação</span><span style="color:var(--green2)">D+0 · Banco</span></div>
+        </div>
+        <button class="btn-full" onclick="openPayModal()">💳 Nova cobrança</button>
+      </div>
+
+      <!-- Estado 2: QR com valor — mostrar ao passageiro -->
+      <div id="qr-state-charged" style="display:none;width:100%;max-width:320px;">
+        <div style="background:var(--green-bg);border:1px solid rgba(39,196,154,0.25);border-radius:14px;padding:12px 16px;margin-bottom:12px;text-align:center;">
+          <div style="font-size:11px;font-weight:600;color:var(--green2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Mostrar ao passageiro</div>
+          <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#fff;" id="qr-charge-total">0 AKZ</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px;" id="qr-charge-detail">1 passageiro · 300 AKZ</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;margin-bottom:12px;">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;">QR Code com valor incluído</div>
+          <div class="qr-box" style="display:inline-block;"><canvas id="qr-charged" width="180" height="180"></canvas></div>
+          <div style="font-size:11px;color:var(--green2);font-family:monospace;margin-top:8px;font-weight:700;" id="qr-charge-ref">—</div>
+        </div>
+        <div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--text2);text-align:center;">
+          ⏳ A aguardar confirmação do passageiro...
+        </div>
+        <button class="btn-secondary" onclick="cancelCharge()">✕ Cancelar e recomeçar</button>
+      </div>
+
+      <!-- Estado 3: Confirmado -->
+      <div id="qr-state-confirmed" style="display:none;width:100%;max-width:320px;">
+        <div style="background:var(--green-bg);border:1px solid rgba(39,196,154,0.3);border-radius:16px;padding:20px;text-align:center;margin-bottom:12px;">
+          <div style="font-size:36px;margin-bottom:8px;">✅</div>
+          <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px;">Pagamento recebido!</div>
+          <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--green2);" id="qr-confirmed-amt">0 AKZ</div>
+        </div>
+        <button class="btn-full" onclick="newCharge()">💳 Nova cobrança</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="dtab-profile" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+    <div class="prof-hdr">
+      <div class="prof-av-big" id="d-pav">M</div>
+      <div class="prof-plate" id="d-pplate">—</div>
+      <div class="prof-name" id="d-pname">—</div>
+      <span class="prof-role-pill">🚗 Motorista Activo</span>
+    </div>
+    <div class="prof-scroll">
+      <div class="prof-item" onclick="openPanel('panel-bank')"><div class="prof-l"><div class="prof-ic" style="background:var(--green-bg)">🏦</div><div class="prof-txt"><strong>Conta bancária</strong><small id="bank-status">Configurar liquidação D+0</small></div></div><span class="chev">›</span></div>
+      <div class="prof-item" onclick="openPanel('panel-vehicle')"><div class="prof-l"><div class="prof-ic" style="background:var(--gold-bg)">🚗</div><div class="prof-txt"><strong>Veículo</strong><small id="d-vehicle-info">—</small></div></div><span class="chev">›</span></div>
+      <div class="prof-item" onclick="openPanel('panel-notif-driver')"><div class="prof-l"><div class="prof-ic" style="background:var(--purple-bg)">🔔</div><div class="prof-txt"><strong>Notificações</strong><small id="notif-status">Activadas</small></div></div><span class="chev">›</span></div>
+      <div class="prof-item" onclick="openPanel('panel-reports')"><div class="prof-l"><div class="prof-ic" style="background:var(--surface2)">📊</div><div class="prof-txt"><strong>Relatórios</strong><small>Histórico de receitas</small></div></div><span class="chev">›</span></div>
+      <div class="prof-item" onclick="openPanel('panel-pin-driver')"><div class="prof-l"><div class="prof-ic" style="background:var(--surface2)">🔒</div><div class="prof-txt"><strong>Alterar PIN</strong><small>Segurança da conta</small></div></div><span class="chev">›</span></div>
+      <button class="btn-logout" onclick="doLogout('driver')">Terminar sessão</button>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <button class="nb active" id="dn-home" onclick="dGoTab('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Início</span>
+    </button>
+    <button class="nb" id="dn-qr" onclick="dGoTab('qr')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="4" height="4"/></svg>
+      <span>QR Code</span>
+    </button>
+    <button class="nb" id="dn-profile" onclick="dGoTab('profile')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Perfil</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══ PASSENGER APP ══ -->
+<div id="screen-passenger" class="screen">
+  <div id="ptab-pay" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+    <div class="pass-hdr">
+      <div class="hdr-top">
+        <div class="greet"><small>Passageiro</small><strong id="p-uname">Passageiro</strong></div>
+        <div class="pass-av" id="p-uav">P</div>
+      </div>
+      <span class="pass-pill">💳 Pronto para pagar</span>
+    </div>
+    <div class="pass-content">
+
+      <!-- PASSO 1: Escolha do método -->
+      <div id="pay-step-1">
+        <div class="scan-card" style="margin-bottom:12px;">
+          <div class="scan-card-icon">📷</div>
+          <div class="scan-card-title">Ler QR Code do motorista</div>
+          <div class="scan-card-sub">Aponta a câmara para o QR Code — os dados do motorista aparecem automaticamente</div>
+          <button class="btn-scan" onclick="startQRScan()">📷 Ler QR Code</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin:12px 0;">
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+          <span style="font-size:11px;color:var(--text3);">ou</span>
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+        </div>
+        <button class="btn-secondary" onclick="showManualEntry()">⌨️ Introduzir matrícula manualmente</button>
+      </div>
+
+      <!-- PASSO 2a: QR detectado — confirmar pagamento -->
+      <div id="pay-step-qr" style="display:none;">
+        <div style="background:var(--green-bg);border:1px solid rgba(39,196,154,0.2);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <span style="font-size:18px;">✅</span>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--green2);">QR Code lido com sucesso</div>
+            <div style="font-size:11px;color:var(--text2);">Dados do motorista carregados automaticamente</div>
+          </div>
+        </div>
+        <!-- Card do motorista detectado -->
+        <div class="confirm-card" style="margin-bottom:12px;">
+          <div class="confirm-driver">
+            <div class="confirm-driver-av" id="qr-driver-av">M</div>
+            <div class="confirm-driver-info">
+              <strong id="qr-driver-name">Motorista</strong>
+              <div class="confirm-plate" id="qr-driver-plate">—</div>
+              <small id="qr-driver-type">Carro · YelaPay+</small>
+            </div>
+          </div>
+          <!-- Valor fixo definido pelo motorista — passageiro não edita -->
+          <div style="background:var(--navy);border-radius:14px;padding:16px 18px;margin-top:4px;">
+            <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Valor a pagar</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:var(--green2);" id="qr-total">300 AKZ</div>
+                <div style="font-size:11px;color:var(--text3);margin-top:2px;" id="qr-detail-sub">Definido pelo motorista</div>
+              </div>
+              <div style="background:var(--green-bg);border-radius:10px;padding:8px 12px;text-align:center;">
+                <div style="font-size:10px;color:var(--green2);font-weight:600;">Fixo</div>
+                <div style="font-size:9px;color:var(--text3);">motorista</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-full" style="background:linear-gradient(135deg,var(--gold),#E8A020);" onclick="confirmQRPayment()">✓ Confirmar pagamento</button>
+        <button class="btn-cancel" onclick="cancelQRScan()">Cancelar · Ler outro QR</button>
+      </div>
+
+      <!-- PASSO 2b: Matrícula manual -->
+      <div id="pay-step-manual" style="display:none;">
+        <div class="f-group">
+          <label class="f-lbl">Matrícula do veículo</label>
+          <input class="f-inp upper" type="text" id="p-plate-input" placeholder="LDA-00-00-HA ou GPL-001-031" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="f-group">
+          <label class="f-lbl">Valor a pagar (AKZ)</label>
+          <div class="val-presets" style="margin-bottom:10px;">
+            <button class="val-preset" onclick="setPVal(200)">200</button>
+            <button class="val-preset active" onclick="setPVal(300)" id="pv-300">300</button>
+            <button class="val-preset" onclick="setPVal(350)">350</button>
+            <button class="val-preset" onclick="setPVal(400)">400</button>
+            <button class="val-preset" onclick="setPVal(500)">500</button>
+          </div>
+          <div class="val-custom">
+            <input type="number" id="p-val-input" placeholder="Outro valor" inputmode="numeric" value="300">
+            <span>AKZ</span>
+          </div>
+        </div>
+        <button class="btn-full" style="background:linear-gradient(135deg,var(--gold),#E8A020);" onclick="confirmPassengerPayment()">✓ Confirmar pagamento</button>
+        <button class="btn-cancel" onclick="cancelManualEntry()">Cancelar</button>
+      </div>
+
+      <!-- Histórico do passageiro -->
+      <div class="sec-title" style="margin-top:20px;">Histórico de viagens</div>
+      <div class="txn-box" id="p-txn-list">
+        <div class="empty">Sem viagens ainda.<br>Lê o QR Code do motorista<br>para fazer o primeiro pagamento.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ptab-profile" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+    <div class="pass-prof-hdr">
+      <div class="pass-prof-av" id="p-pav">P</div>
+      <div class="prof-name" id="p-pname">Passageiro</div>
+      <div class="prof-phone" id="p-pphone">—</div>
+      <div class="prof-phone" id="p-pbi" style="font-size:11px;color:var(--text3);margin-top:2px;">BI: —</div>
+      <span class="pass-role-pill">👤 Passageiro</span>
+    </div>
+    <div class="prof-scroll">
+      <div class="prof-item" onclick="openPanel('panel-personal-info')"><div class="prof-l"><div class="prof-ic" style="background:var(--gold-bg)">👤</div><div class="prof-txt"><strong>Informação pessoal</strong><small>Nome, BI, telefone</small></div></div><span class="chev">›</span></div>
+      <div class="prof-item" onclick="openPanel('panel-payment-method')"><div class="prof-l"><div class="prof-ic" style="background:var(--green-bg)">💳</div><div class="prof-txt"><strong>Método de pagamento</strong><small>Conta bancária para débito</small></div></div><span class="chev">›</span></div>
+      <div class="prof-item" onclick="openPanel('panel-notif-passenger')"><div class="prof-l"><div class="prof-ic" style="background:var(--purple-bg)">🔔</div><div class="prof-txt"><strong>Notificações</strong><small>Recibos automáticos</small></div></div><span class="chev">›</span></div>
+      <div class="prof-item" onclick="openPanel('panel-history')"><div class="prof-l"><div class="prof-ic" style="background:var(--surface2)">📊</div><div class="prof-txt"><strong>Histórico completo</strong><small>Todas as viagens</small></div></div><span class="chev">›</span></div>
+      <div class="prof-item" onclick="openPanel('panel-pin-passenger')"><div class="prof-l"><div class="prof-ic" style="background:var(--surface2)">🔒</div><div class="prof-txt"><strong>Alterar PIN</strong><small>Segurança</small></div></div><span class="chev">›</span></div>
+      <button class="btn-logout" style="background:rgba(201,168,76,0.1);border-color:rgba(201,168,76,0.2);color:var(--gold);" onclick="doLogout('passenger')">Terminar sessão</button>
+    </div>
+  </div>
+
+  <div class="bnav gold">
+    <button class="nb gold-active active" id="pn-pay" onclick="pGoTab('pay')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      <span>Pagar</span>
+    </button>
+    <button class="nb gold-active" id="pn-profile" onclick="pGoTab('profile')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Perfil</span>
+    </button>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL (driver) -->
+<div class="modal-overlay" id="pay-modal" onclick="if(event.target===this)closePayModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Receber pagamento</div>
+    <div class="modal-sub">Define passageiros e valor por pessoa</div>
+    <div class="pax-section">
+      <span class="pax-label">Número de passageiros</span>
+      <div class="pax-row">
+        <button class="pax-btn active" onclick="setPax(1)" id="pax-1">1</button>
+        <button class="pax-btn" onclick="setPax(2)" id="pax-2">2</button>
+        <button class="pax-btn" onclick="setPax(3)" id="pax-3">3</button>
+        <button class="pax-btn" onclick="setPax(4)" id="pax-4">4</button>
+        <button class="pax-btn" onclick="setPax(5)" id="pax-5">5+</button>
+      </div>
+    </div>
+    <div class="val-section">
+      <span class="pax-label">Valor por passageiro (AKZ)</span>
+      <div class="val-presets">
+        <button class="val-preset" onclick="setVal(200)">200</button>
+        <button class="val-preset" onclick="setVal(250)">250</button>
+        <button class="val-preset active" onclick="setVal(300)" id="v-300">300</button>
+        <button class="val-preset" onclick="setVal(350)">350</button>
+        <button class="val-preset" onclick="setVal(400)">400</button>
+        <button class="val-preset" onclick="setVal(500)">500</button>
+      </div>
+      <div class="val-custom">
+        <input type="number" id="val-input" placeholder="Outro valor" inputmode="numeric" oninput="onCustomVal()">
+        <span>AKZ / pessoa</span>
+      </div>
+    </div>
+    <div class="pay-summary">
+      <div class="pay-summary-row"><span>Passageiros</span><span id="sum-pax">1 passageiro</span></div>
+      <div class="pay-summary-row"><span>Valor por pessoa</span><span id="sum-val">300 AKZ</span></div>
+      <div class="pay-summary-row total"><span>Total a receber</span><span id="sum-total">300 AKZ</span></div>
+    </div>
+    <button class="btn-confirm" onclick="confirmDriverPayment()">✓ Confirmar pagamento</button>
+    <button class="btn-cancel" onclick="closePayModal()">Cancelar</button>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-circle">✓</div>
+  <div class="success-title" id="suc-title">Pagamento confirmado!</div>
+  <div class="success-amt" id="suc-amt">0 AKZ</div>
+  <div class="success-ref" id="suc-ref">YP-2026-00000001</div>
+  <div class="success-detail">
+    <div class="sd-row"><span id="suc-row1-lbl">Passageiros</span><span id="suc-row1-val">1</span></div>
+    <div class="sd-row"><span id="suc-row2-lbl">Valor/pessoa</span><span id="suc-row2-val">300 AKZ</span></div>
+    <div class="sd-row"><span>Matrícula</span><span id="suc-plate">—</span></div>
+    <div class="sd-row"><span>Liquidação</span><span style="color:var(--green2)">Hoje · D+0</span></div>
+  </div>
+  <button class="btn-full" style="width:100%;max-width:320px;" onclick="closeSuccess()">Continuar</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="t-ic">💸</div>
+  <div class="t-txt"><strong id="tt">Pagamento!</strong><small id="tb">Confirmado</small></div>
+</div>
+
+<script>
+const API='https://yelapay-platform.onrender.com';
+let driverUser=null,passUser=null;
+let dTotalPax=0,dTotalAmt=0,dTotalTxns=0,dTxns=[];
+let pTxns=[];
+let selPax=1,selVal=300,selPVal=300;
+let vehicleType='car';
+let txnCounter=1;
+
+// ── STORAGE ──
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function ld(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}}
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded',()=>{
+  setupPinInputs('dp',6);setupPinInputs('rp',6);
+  setupPinInputs('pp',6);setupPinInputs('prp',6);
+  // Maiúsculas nas matrículas
+  ['d-plate','r-plate','p-plate-input'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.addEventListener('input',()=>{ el.value=el.value.toUpperCase(); });
+  });
+  // Telemóvel passageiro formato
+  ['p-phone','r-phone','pr-phone'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.addEventListener('input',()=>{
+      let v=el.value.replace(/[^+\d]/g,'');
+      if(v&&!v.startsWith('+'))v='+'+v;
+      el.value=v;
+    });
+  });
+  // Restaurar sessão
+  const du=ld('yp_driver');
+  const pu=ld('yp_passenger');
+  if(du){driverUser=du;enterDriverApp();}
+  else if(pu){passUser=pu;enterPassengerApp();}
+  if(window.navigator.standalone)document.getElementById('ib').style.display='none';
+});
+
+function setupPinInputs(prefix,count){
+  const inputs=Array.from({length:count},(_,i)=>document.getElementById(prefix+(i+1)));
+  inputs.forEach((inp,i)=>{
+    if(!inp)return;
+    inp.addEventListener('input',()=>{if(inp.value&&i<inputs.length-1)inputs[i+1].focus();});
+    inp.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!inp.value&&i>0)inputs[i-1].focus();});
+  });
+}
+function getPin(prefix,count){
+  // Aceita 4 a 6 dígitos — ignora campos vazios no final
+  const digits=Array.from({length:count},(_,i)=>document.getElementById(prefix+(i+1))?.value||'');
+  // Remover dígitos vazios do fim
+  while(digits.length>4&&digits[digits.length-1]==='')digits.pop();
+  return digits.join('');
+}
+function clearPin(prefix,count){
+  Array.from({length:count},(_,i)=>{const el=document.getElementById(prefix+(i+1));if(el)el.value='';});
+}
+
+// ── NAVIGATION ──
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goWelcome(){showScreen('screen-welcome');}
+function showDriverLogin(){showScreen('screen-driver-login');}
+function showDriverRegister(){showScreen('screen-driver-register');}
+function showPassengerLogin(){showScreen('screen-passenger-login');}
+function showPassengerRegister(){showScreen('screen-passenger-register');}
+
+// ── VEHICLE TYPE ──
+function setVehicleType(type){
+  vehicleType=type;
+  document.getElementById('type-car').classList.toggle('active',type==='car');
+  document.getElementById('type-moto').classList.toggle('active',type==='moto');
+  const hint=document.getElementById('plate-hint');
+  if(hint){
+    hint.textContent=type==='car'
+      ?'Formato: LDA-00-00-HA ou LD-00-00-HA'
+      :'Introduz a matrícula conforme aparece na moto';
+  }
+}
+
+// ── DRIVER AUTH ──
+async function driverRegister(){
+  const plate=document.getElementById('r-plate').value.trim().toUpperCase();
+  const name=document.getElementById('r-name').value.trim();
+  const phone=document.getElementById('r-phone').value.trim();
+  const pin=getPin('rp',6);
+  if(!plate){alert('Introduz a matrícula do veículo');return;}
+  if(!name){alert('Introduz o teu nome completo');return;}
+  if(pin.length<4||pin.length>6){alert('O PIN deve ter entre 4 e 6 dígitos');return;}
+
+  // ── Matrícula única ─────────────────────────────────────────
+  const existingDriver=ld('yp_driver');
+  if(existingDriver&&existingDriver.plate===plate){
+    alert('❌ Esta matrícula já está registada no YelaPay+.\nSe já tens conta, usa a opção "Entrar".');
+    return;
+  }
+  // Verificar também na API
+  try{
+    const r=await fetch(`${API}/api/vehicles`);
+    if(r.ok){
+      const vehicles=await r.json();
+      if(vehicles.some(v=>(v.plate||'').toUpperCase().replace(/\s/g,'')===plate.replace(/\s/g,''))){
+        alert('❌ Esta matrícula já está registada no YelaPay+.\nSe já tens conta, usa a opção "Entrar".');
+        return;
+      }
+    }
+  }catch(e){}
+
+  driverUser={plate,name,phone,pin,vehicleType,role:'driver',id:Date.now()};
+  sv('yp_driver',driverUser);
+  // Registar veículo na API
+  try{
+    await fetch(`${API}/api/vehicles`,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({plate,type:vehicleType,status:'active'})});
+  }catch(e){}
+  enterDriverApp();
+}
+
+async function driverLogin(){
+  const plate=document.getElementById('d-plate').value.trim().toUpperCase();
+  const pin=getPin('dp',6);
+  if(!plate){alert('Introduz a matrícula');return;}
+  if(pin.length<4){alert('Introduz o PIN entre 4 a 6 dígitos');return;}
+
+  const saved=ld('yp_driver');
+  // Conta local encontrada
+  if(saved&&saved.plate===plate){
+    if(saved.pin===pin){driverUser=saved;enterDriverApp();return;}
+    alert('❌ PIN incorrecto. Tenta novamente.');
+    return;
+  }
+  // Matrícula diferente da guardada
+  if(saved&&saved.plate!==plate){
+    alert('❌ Esta matrícula não está registada neste dispositivo.\nClica em "Registar" para criar conta.');
+    return;
+  }
+  // Demo sem conta — PIN 1234
+  if(pin==='1234'){
+    driverUser={plate,name:'Motorista '+plate,phone:'',pin,vehicleType:'car',role:'driver',id:1};
+    sv('yp_driver',driverUser);enterDriverApp();return;
+  }
+  alert('❌ Matrícula não registada.\nClica em "Registar" para criar a tua conta.');
+}
+
+function enterDriverApp(){
+  showScreen('screen-driver');
+  const name=driverUser.name||'Motorista';
+  const ini=name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  setText('d-uname',name.split(' ')[0]);
+  setText('d-uav',ini);setText('d-pav',ini);
+  setText('d-pname',name);
+  setText('d-pplate',driverUser.plate||'—');
+  setText('d-plate-badge',driverUser.plate||'—');
+  setText('d-plate-badge2',driverUser.plate||'—');
+  setText('qi-name',name);
+  setText('qi-plate',driverUser.plate||'—');
+  setText('qi-phone',driverUser.phone||'—');
+  setText('d-vehicle-info',(driverUser.vehicleType==='moto'?'Moto':'Carro')+' · '+driverUser.plate);
+  genQR();
+}
+
+// ── PASSENGER AUTH ──
+async function passengerRegister(){
+  const name=document.getElementById('pr-name').value.trim();
+  const bi=(document.getElementById('pr-bi')||{value:''}).value.trim().toUpperCase();
+  const phone=document.getElementById('pr-phone').value.trim();
+  const pin=getPin('prp',6);
+  if(!name){alert('Introduz o teu nome completo');return;}
+  if(!bi){alert('Introduz o teu número de BI');return;}
+  if(!phone){alert('Introduz o teu número de telefone');return;}
+  if(pin.length<4||pin.length>6){alert('O PIN deve ter entre 4 e 6 dígitos');return;}
+
+  // ── BI único ────────────────────────────────────────────────
+  const existingPass=ld('yp_passenger');
+  if(existingPass&&existingPass.bi===bi){
+    alert('❌ Este número de BI já está registado no YelaPay+.\nSe já tens conta, usa a opção "Entrar".');
+    return;
+  }
+
+  // ── Telefone único ──────────────────────────────────────────
+  if(existingPass&&existingPass.phone&&
+     existingPass.phone.replace(/\s/g,'').replace('+','')===phone.replace(/\s/g,'').replace('+','')){
+    alert('❌ Este número de telefone já está registado.\nSe já tens conta, usa a opção "Entrar".');
+    return;
+  }
+
+  passUser={name,bi,phone,pin,role:'passenger',id:Date.now()};
+  sv('yp_passenger',passUser);
+  enterPassengerApp();
+}
+
+async function passengerLogin(){
+  const phone=document.getElementById('p-phone').value.trim();
+  const pin=getPin('pp',6);
+  if(!phone){alert('Introduz o teu número de telefone');return;}
+  if(pin.length<4){alert('Introduz o PIN entre 4 a 6 dígitos');return;}
+
+  const saved=ld('yp_passenger');
+  const phoneClean=phone.replace(/\s/g,'').replace('+','');
+
+  if(saved){
+    const savedClean=(saved.phone||'').replace(/\s/g,'').replace('+','');
+    if(savedClean===phoneClean){
+      if(saved.pin===pin){passUser=saved;enterPassengerApp();return;}
+      alert('❌ PIN incorrecto. Tenta novamente.');
+      return;
+    }
+  }
+
+  // Demo — PIN 1234
+  if(pin==='1234'){
+    passUser={name:'Passageiro',phone,pin,role:'passenger',id:2};
+    sv('yp_passenger',passUser);enterPassengerApp();return;
+  }
+  alert('❌ Número não registado.\nClica em "Registar" para criar a tua conta.');
+}
+
+function enterPassengerApp(){
+  showScreen('screen-passenger');
+  const name=passUser.name||'Passageiro';
+  const ini=name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  setText('p-uname',name.split(' ')[0]);
+  setText('p-uav',ini);setText('p-pav',ini);
+  setText('p-pname',name);
+  setText('p-pphone',passUser.phone||'—');
+  setText('p-pbi','BI: '+(passUser.bi||'—'));
+}
+
+// ── QR ──
+function genQR(){
+  const c=document.getElementById('qr-c');if(!c)return;
+  const ctx=c.getContext('2d');
+  const sz=200,cell=sz/25;
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);
+  const seed=(driverUser?.id||1)*13+7;
+  ctx.fillStyle='#0B1F3A';
+  for(let y=0;y<25;y++)for(let x=0;x<25;x++){
+    if(x<8&&y<8||x>16&&y<8||x<8&&y>16)continue;
+    if(((x*37+y*19+seed*11)%100)<42)ctx.fillRect(x*cell,y*cell,cell-0.8,cell-0.8);
+  }
+  [[0,0],[17,0],[0,17]].forEach(([ox,oy])=>{
+    ctx.fillStyle='#0B1F3A';ctx.fillRect(ox*cell,oy*cell,7*cell,7*cell);
+    ctx.fillStyle='#fff';ctx.fillRect((ox+1)*cell,(oy+1)*cell,5*cell,5*cell);
+    ctx.fillStyle='#0B1F3A';ctx.fillRect((ox+2)*cell,(oy+2)*cell,3*cell,3*cell);
+  });
+  const plate=driverUser?.plate||'YP';
+  setText('qr-ref',plate+' · YelaPay+');
+}
+
+// ── DRIVER PAYMENT MODAL ──
+function openPayModal(){
+  selPax=1;selVal=300;
+  updatePaxBtns();updateValBtns();updateSummary();
+  document.getElementById('val-input').value='';
+  document.getElementById('pay-modal').classList.add('show');
+}
+function closePayModal(){document.getElementById('pay-modal').classList.remove('show');}
+function setPax(n){selPax=n;updatePaxBtns();updateSummary();}
+function setVal(v){
+  selVal=v;
+  document.getElementById('val-input').value='';
+  updateValBtns();updateSummary();
+}
+function onCustomVal(){
+  const v=parseInt(document.getElementById('val-input').value)||0;
+  if(v>0){selVal=v;[200,250,300,350,400,500].forEach(p=>{const b=document.getElementById('v-'+p);if(b)b.classList.remove('active');});}
+  updateSummary();
+}
+function updatePaxBtns(){[1,2,3,4,5].forEach(n=>{const b=document.getElementById('pax-'+n);if(b)b.classList.toggle('active',n===selPax);});}
+function updateValBtns(){[200,250,300,350,400,500].forEach(v=>{const b=document.getElementById('v-'+v);if(b)b.classList.toggle('active',v===selVal);});}
+function updateSummary(){
+  const total=selPax*selVal;
+  setText('sum-pax',selPax+(selPax===1?' passageiro':' passageiros'));
+  setText('sum-val',selVal.toLocaleString('pt-PT')+' AKZ');
+  setText('sum-total',total.toLocaleString('pt-PT')+' AKZ');
+}
+
+// Cobrança activa — aguarda confirmação do passageiro
+let activeCharge = null;
+
+function confirmDriverPayment(){
+  const total=selPax*selVal;
+  if(total<=0)return;
+  closePayModal();
+
+  // Guardar cobrança activa
+  const ref='YP-'+new Date().getFullYear()+'-'+String(txnCounter++).padStart(8,'0');
+  activeCharge={total,pax:selPax,valPerPax:selVal,ref,plate:driverUser?.plate||'—'};
+
+  // Actualizar UI — mostrar QR com valor
+  setText('qr-charge-total',total.toLocaleString('pt-PT')+' AKZ');
+  setText('qr-charge-detail',selPax+' passageiro'+(selPax!==1?'s':'')+' · '+selVal.toLocaleString('pt-PT')+' AKZ/pessoa');
+  setText('qr-charge-ref',ref);
+
+  // Gerar QR com valor codificado
+  genQRCharged(total,ref);
+
+  // Trocar estado
+  document.getElementById('qr-state-idle').style.display='none';
+  document.getElementById('qr-state-charged').style.display='block';
+  document.getElementById('qr-state-confirmed').style.display='none';
+
+  // Simular confirmação do passageiro após 4 segundos (demo)
+  // Em produção: webhook da API quando passageiro confirma
+  setTimeout(()=>{ if(activeCharge&&activeCharge.ref===ref) passengerConfirmed(activeCharge); }, 4000);
+}
+
+function passengerConfirmed(charge){
+  if(!charge)return;
+  dTotalPax+=charge.pax;dTotalAmt+=charge.total;dTotalTxns++;
+  dTxns.unshift({amount:charge.total,pax:charge.pax,valPerPax:charge.valPerPax,created_at:new Date().toISOString()});
+  activeCharge=null;
+
+  // Mostrar estado confirmado
+  setText('qr-confirmed-amt',charge.total.toLocaleString('pt-PT')+' AKZ');
+  document.getElementById('qr-state-charged').style.display='none';
+  document.getElementById('qr-state-confirmed').style.display='block';
+
+  renderDriverHome();
+  showToast('💸 Pago! '+charge.total.toLocaleString('pt-PT')+' AKZ',charge.pax+' passageiro'+(charge.pax!==1?'s':'')+' · '+charge.plate);
+}
+
+function cancelCharge(){
+  activeCharge=null;
+  newCharge();
+}
+
+function newCharge(){
+  document.getElementById('qr-state-idle').style.display='block';
+  document.getElementById('qr-state-charged').style.display='none';
+  document.getElementById('qr-state-confirmed').style.display='none';
+}
+
+function genQRCharged(total,ref){
+  const c=document.getElementById('qr-charged');
+  if(!c)return;
+  const ctx=c.getContext('2d');
+  const sz=180,cell=sz/25;
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);
+  // Seed diferente com valor incluído — QR único por cobrança
+  const seed=((driverUser?.id||1)*13+(total||300)*7)%997+7;
+  ctx.fillStyle='#0B1F3A';
+  for(let y=0;y<25;y++)for(let x=0;x<25;x++){
+    if(x<8&&y<8||x>16&&y<8||x<8&&y>16)continue;
+    if(((x*37+y*19+seed*11)%100)<42)ctx.fillRect(x*cell,y*cell,cell-0.8,cell-0.8);
+  }
+  [[0,0],[17,0],[0,17]].forEach(([ox,oy])=>{
+    ctx.fillStyle='#0B1F3A';ctx.fillRect(ox*cell,oy*cell,7*cell,7*cell);
+    ctx.fillStyle='#fff';ctx.fillRect((ox+1)*cell,(oy+1)*cell,5*cell,5*cell);
+    ctx.fillStyle='#0B1F3A';ctx.fillRect((ox+2)*cell,(oy+2)*cell,3*cell,3*cell);
+  });
+}
+
+function renderDriverHome(){
+  const avg=dTotalTxns>0?Math.round(dTotalAmt/dTotalTxns):0;
+  setText('d-amt',dTotalAmt.toLocaleString('pt-PT')+' AKZ');
+  setText('d-sub',dTotalPax+' passageiro'+(dTotalPax!==1?'s':'')+' hoje');
+  setText('d-pax',dTotalPax);
+  setText('d-txns',dTotalTxns);
+  setText('d-avg',avg.toLocaleString('pt-PT')+' AKZ');
+  const box=document.getElementById('d-txn-list');
+  if(!box)return;
+  if(dTxns.length===0){box.innerHTML='<div class="empty">Sem transacções ainda.<br>Vai ao separador <strong style="color:var(--green2)">QR Code</strong><br>para receber o primeiro pagamento.</div>';return;}
+  box.innerHTML=dTxns.slice(0,10).map(t=>{
+    const d=new Date(t.created_at||Date.now());
+    const tm=d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+    return`<div class="txn"><div class="txn-ic">💸</div><div class="txn-info"><div class="txn-name">${t.pax} passageiro${t.pax!==1?'s':''} · ${t.valPerPax.toLocaleString('pt-PT')} AKZ/pessoa</div><div class="txn-time">${tm} · QR Code</div></div><div class="txn-amt">+${t.amount.toLocaleString('pt-PT')} AKZ</div></div>`;
+  }).join('');
+}
+
+// ── PASSENGER PAYMENT ──
+// ── QR SCAN FLOW ──
+let qrDriverData = null; // dados do motorista lidos do QR
+let qrSelVal = 300;
+
+function startQRScan(){
+  // Em produção: câmara lê o QR e extrai os dados + valor definido pelo motorista
+  // O QR contém: { plate, name, vehicleType, total, pax, valPerPax, ref }
+  // Demo: simular motoristas com cobranças activas (valor já definido pelo motorista)
+  const demoDrivers = [
+    {plate:'LDA-23-45-HA', name:'Manuel João', vehicleType:'car', total:900, pax:3, valPerPax:300},
+    {plate:'LD-88-12-BA',  name:'Carlos Silva', vehicleType:'car', total:300, pax:1, valPerPax:300},
+    {plate:'GPL-001-031',  name:'Pedro Neto',   vehicleType:'moto', total:350, pax:1, valPerPax:350},
+  ];
+  qrDriverData = demoDrivers[Math.floor(Math.random()*demoDrivers.length)];
+  showQRResult();
+}
+
+function showQRResult(){
+  if(!qrDriverData)return;
+  document.getElementById('pay-step-1').style.display='none';
+  document.getElementById('pay-step-manual').style.display='none';
+  document.getElementById('pay-step-qr').style.display='block';
+  // Preencher dados do motorista — automático, passageiro não edita
+  const ini=qrDriverData.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  setText('qr-driver-av',ini);
+  setText('qr-driver-name',qrDriverData.name);
+  setText('qr-driver-plate',qrDriverData.plate);
+  setText('qr-driver-type',(qrDriverData.vehicleType==='moto'?'Moto':'Carro')+' · YelaPay+');
+  // Valor fixo vem do QR — definido pelo motorista
+  const total=qrDriverData.total||300;
+  qrSelVal=total;
+  setText('qr-total',total.toLocaleString('pt-PT')+' AKZ');
+  const detail=qrDriverData.pax
+    ?(qrDriverData.pax+' passageiro'+(qrDriverData.pax!==1?'s':'')+' · '+(qrDriverData.valPerPax||total).toLocaleString('pt-PT')+' AKZ/pessoa')
+    :'Definido pelo motorista';
+  setText('qr-detail-sub',detail);
+}
+
+// Valor fixo — definido pelo motorista no QR
+// Passageiro não edita o valor
+
+function confirmQRPayment(){
+  if(!qrDriverData||qrSelVal<=0)return;
+  const val=qrSelVal;
+  const plate=qrDriverData.plate;
+  pTxns.unshift({plate,driverName:qrDriverData.name,amount:val,channel:'qr',created_at:new Date().toISOString()});
+  cancelQRScan();
+  const ref='YP-'+new Date().getFullYear()+'-'+String(txnCounter++).padStart(8,'0');
+  showSuccess(
+    'Pagamento efectuado!',val,ref,
+    'Motorista',qrDriverData.name,
+    'Veículo',plate,
+    plate
+  );
+  renderPassengerHistory();
+  showToast('✅ Viagem paga!',val.toLocaleString('pt-PT')+' AKZ · '+plate);
+}
+
+function cancelQRScan(){
+  qrDriverData=null;
+  document.getElementById('pay-step-qr').style.display='none';
+  document.getElementById('pay-step-1').style.display='block';
+}
+
+function showManualEntry(){
+  document.getElementById('pay-step-1').style.display='none';
+  document.getElementById('pay-step-manual').style.display='block';
+}
+
+function cancelManualEntry(){
+  document.getElementById('pay-step-manual').style.display='none';
+  document.getElementById('pay-step-1').style.display='block';
+}
+
+function setPVal(v){
+  selPVal=v;
+  [200,300,350,400,500].forEach(p=>{
+    const b=document.getElementById('pv-'+p);
+    if(b)b.classList.toggle('active',p===v);
+  });
+  const inp=document.getElementById('p-val-input');
+  if(inp)inp.value=v;
+}
+
+function confirmPassengerPayment(){
+  const plate=document.getElementById('p-plate-input').value.trim().toUpperCase();
+  const val=parseInt(document.getElementById('p-val-input').value)||selPVal;
+  if(!plate){alert('Introduz a matrícula do veículo');return;}
+  if(val<=0){alert('Introduz o valor a pagar');return;}
+  pTxns.unshift({plate,amount:val,channel:'manual',created_at:new Date().toISOString()});
+  cancelManualEntry();
+  const ref='YP-'+new Date().getFullYear()+'-'+String(txnCounter++).padStart(8,'0');
+  showSuccess(
+    'Pagamento efectuado!',val,ref,
+    'Veículo',plate,
+    'Canal','Matrícula manual',
+    plate
+  );
+  renderPassengerHistory();
+  showToast('✅ Viagem paga!',val.toLocaleString('pt-PT')+' AKZ · '+plate);
+}
+
+function renderPassengerHistory(){
+  const box=document.getElementById('p-txn-list');
+  if(!box)return;
+  if(pTxns.length===0){box.innerHTML='<div class="empty">Sem viagens ainda.<br>Faz o teu primeiro pagamento acima.</div>';return;}
+  box.innerHTML=pTxns.slice(0,10).map(t=>{
+    const d=new Date(t.created_at||Date.now());
+    const tm=d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+    const channel=t.channel==='qr'?'QR Code':'Matrícula manual';
+    const icon=t.channel==='qr'?'📷':'⌨️';
+    return`<div class="pass-txn"><div class="pass-txn-ic">${icon}</div><div class="pass-txn-info"><div class="pass-txn-name">Viagem · ${t.plate}${t.driverName?' · '+t.driverName:''}</div><div class="pass-txn-sub">${tm} · ${channel}</div></div><div class="pass-txn-amt">-${t.amount.toLocaleString('pt-PT')} AKZ</div></div>`;
+  }).join('');
+}
+
+// ── SUCCESS OVERLAY ──
+function showSuccess(title,amt,ref,r1l,r1v,r2l,r2v,plate){
+  setText('suc-title',title);
+  setText('suc-amt',amt.toLocaleString('pt-PT')+' AKZ');
+  setText('suc-ref',ref);
+  setText('suc-row1-lbl',r1l);setText('suc-row1-val',r1v);
+  setText('suc-row2-lbl',r2l);setText('suc-row2-val',r2v);
+  setText('suc-plate',plate);
+  document.getElementById('success-overlay').classList.add('show');
+}
+function closeSuccess(){
+  document.getElementById('success-overlay').classList.remove('show');
+  if(driverUser)dGoTab('home');
+  else pGoTab('pay');
+}
+
+// ── TABS ──
+function dGoTab(tab){
+  ['home','qr','profile'].forEach(t=>{
+    const el=document.getElementById('dtab-'+t);
+    const btn=document.getElementById('dn-'+t);
+    if(el)el.style.display=t===tab?'flex':'none';
+    if(btn)btn.classList.toggle('active',t===tab);
+  });
+  if(tab==='qr')genQR();
+}
+function pGoTab(tab){
+  ['pay','profile'].forEach(t=>{
+    const el=document.getElementById('ptab-'+t);
+    const btn=document.getElementById('pn-'+t);
+    if(el)el.style.display=t===tab?'flex':'none';
+    if(btn)btn.classList.toggle('active',t===tab);
+  });
+}
+
+// ── LOGOUT ──
+function doLogout(role){
+  if(!confirm('Tens a certeza que queres sair?'))return;
+  if(role==='driver'){try{localStorage.removeItem('yp_driver');}catch(e){}driverUser=null;dTotalPax=0;dTotalAmt=0;dTotalTxns=0;dTxns=[];}
+  else{try{localStorage.removeItem('yp_passenger');}catch(e){}passUser=null;pTxns=[];}
+  goWelcome();
+}
+
+// ── TOAST ──
+function showToast(title,body){
+  const t=document.getElementById('toast');
+  setText('tt',title);setText('tb',body);
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3800);
+}
+
+
+// ── PAINÉIS DE PERFIL ─────────────────────────────────────────
+
+function openPanel(id){
+  const panel=document.getElementById(id);
+  if(!panel){console.warn('Painel não encontrado:',id);return;}
+  panel.classList.add('show');
+  // Preencher dados ao abrir
+  if(id==='panel-bank')loadBankPanel();
+  if(id==='panel-vehicle')loadVehiclePanel();
+  if(id==='panel-reports')loadReportsPanel();
+  if(id==='panel-history')loadHistoryPanel();
+  if(id==='panel-personal-info')loadPersonalInfo();
+  if(id==='panel-notif-driver')setText('notif-phone-driver',driverUser?.phone||'—');
+  // Setup PIN inputs nos painéis
+  setupPinInputs('old-pin-',6);setupPinInputs('new-pin-',6);setupPinInputs('conf-pin-',6);
+  setupPinInputs('p-old-pin-',6);setupPinInputs('p-new-pin-',6);setupPinInputs('p-conf-pin-',6);
+}
+
+function loadPersonalInfo(){
+  if(!passUser)return;
+  setText('pi-name',passUser.name||'—');
+  setText('pi-bi',passUser.bi||'—');
+  setText('pi-phone',passUser.phone||'—');
+}
+
+function updatePhone(){
+  const phone=document.getElementById('new-phone').value.trim();
+  if(!phone||phone.length<9){alert('Introduz um número válido');return;}
+  if(passUser){
+    passUser.phone=phone;
+    sv('yp_passenger',passUser);
+    setText('p-pphone',phone);
+    setText('pi-phone',phone);
+    document.getElementById('phone-success').classList.add('show');
+    setTimeout(()=>document.getElementById('phone-success').classList.remove('show'),3000);
+  }
+}
+
+function closePanel(id){
+  const panel=document.getElementById(id);
+  if(panel)panel.classList.remove('show');
+  // Limpar mensagens
+  document.querySelectorAll('.success-msg,.error-msg').forEach(el=>el.classList.remove('show'));
+}
+
+// ── CONTA BANCÁRIA ────────────────────────────────────────────
+function loadBankPanel(){
+  const saved=ld('yp_bank_driver');
+  if(saved){
+    document.getElementById('bank-name').value=saved.bank||'';
+    document.getElementById('bank-iban').value=saved.iban||'';
+    document.getElementById('bank-holder').value=saved.holder||'';
+    const section=document.getElementById('bank-current-section');
+    const info=document.getElementById('bank-current-info');
+    if(section&&info){
+      section.style.display='block';
+      info.innerHTML=`
+        <div class="info-row"><span>Banco</span><span>${saved.bank||'—'}</span></div>
+        <div class="info-row"><span>IBAN</span><span>${(saved.iban||'').slice(0,12)}••••</span></div>
+        <div class="info-row"><span>Titular</span><span>${saved.holder||'—'}</span></div>
+        <div class="info-row"><span>Estado</span><span style="color:var(--green2)">✓ Verificada</span></div>
+      `;
+    }
+  }
+}
+
+function saveBankAccount(){
+  const bank=document.getElementById('bank-name').value;
+  const iban=document.getElementById('bank-iban').value.trim().toUpperCase();
+  const holder=document.getElementById('bank-holder').value.trim();
+  if(!bank){alert('Selecciona o banco');return;}
+  if(!iban||iban.length<10){alert('Introduz um IBAN válido');return;}
+  if(!holder){alert('Introduz o nome do titular');return;}
+  sv('yp_bank_driver',{bank,iban,holder});
+  document.getElementById('bank-success').classList.add('show');
+  loadBankPanel();
+  setTimeout(()=>document.getElementById('bank-success').classList.remove('show'),3000);
+}
+
+// ── VEÍCULO ───────────────────────────────────────────────────
+let vehType='car';
+function loadVehiclePanel(){
+  if(driverUser){
+    document.getElementById('veh-plate').value=driverUser.plate||'';
+    document.getElementById('veh-plate').disabled=true; // Matrícula não editável
+    vehType=driverUser.vehicleType||'car';
+    setVehType(vehType);
+    const saved=ld('yp_vehicle_extra');
+    if(saved){
+      document.getElementById('veh-color').value=saved.color||'';
+      document.getElementById('veh-route').value=saved.route||'';
+    }
+  }
+}
+function setVehType(type){
+  vehType=type;
+  document.getElementById('veh-type-car').classList.toggle('active',type==='car');
+  document.getElementById('veh-type-moto').classList.toggle('active',type==='moto');
+}
+function saveVehicle(){
+  const color=document.getElementById('veh-color').value.trim();
+  const route=document.getElementById('veh-route').value.trim();
+  sv('yp_vehicle_extra',{color,route,type:vehType});
+  if(driverUser){driverUser.vehicleType=vehType;sv('yp_driver',driverUser);}
+  document.getElementById('vehicle-success').classList.add('show');
+  setTimeout(()=>document.getElementById('vehicle-success').classList.remove('show'),3000);
+}
+
+// ── ALTERAR PIN ───────────────────────────────────────────────
+function changePin(role){
+  const prefix=role==='driver'?'':' p-';
+  const oldPin=getPinById(role==='driver'?'old-pin-':'p-old-pin-',6);
+  const newPin=getPinById(role==='driver'?'new-pin-':'p-new-pin-',6);
+  const confPin=getPinById(role==='driver'?'conf-pin-':'p-conf-pin-',6);
+  const successId=`pin-${role}-success`;
+  const errorId=`pin-${role}-error`;
+  const user=role==='driver'?driverUser:passUser;
+  const key=role==='driver'?'yp_driver':'yp_passenger';
+
+  document.getElementById(successId).classList.remove('show');
+  document.getElementById(errorId).classList.remove('show');
+
+  if(!user){alert('Sessão inválida');return;}
+  if(oldPin!==user.pin){document.getElementById(errorId).classList.add('show');return;}
+  if(newPin.length<4){alert('O novo PIN deve ter entre 4 e 6 dígitos');return;}
+  if(newPin!==confPin){document.getElementById(errorId).classList.add('show');return;}
+
+  user.pin=newPin;
+  if(role==='driver')driverUser=user;
+  else passUser=user;
+  sv(key,user);
+  document.getElementById(successId).classList.add('show');
+}
+
+function getPinById(prefix,count){
+  const digits=Array.from({length:count},(_,i)=>document.getElementById(prefix+(i+1))?.value||'');
+  while(digits.length>4&&digits[digits.length-1]==='')digits.pop();
+  return digits.join('');
+}
+
+// ── TOGGLE NOTIFICAÇÕES ───────────────────────────────────────
+function toggleNotif(btn){
+  btn.classList.toggle('on');
+}
+
+// ── RELATÓRIOS ────────────────────────────────────────────────
+function loadReportsPanel(){
+  setText('rep-today',dTotalAmt.toLocaleString('pt-PT')+' AKZ');
+  setText('rep-pax',dTotalPax);
+  setText('rep-txns',dTotalTxns);
+  const avg=dTotalTxns>0?Math.round(dTotalAmt/dTotalTxns):0;
+  setText('rep-avg',avg.toLocaleString('pt-PT')+' AKZ');
+  const list=document.getElementById('rep-list');
+  if(!list)return;
+  if(dTxns.length===0){
+    list.innerHTML='<div class="empty" style="color:var(--text2);font-size:13px;text-align:center;padding:20px;">Sem transacções ainda.</div>';
+    return;
+  }
+  list.innerHTML=dTxns.map(t=>{
+    const d=new Date(t.created_at||Date.now());
+    const dt=d.toLocaleDateString('pt-PT')+' '+d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+    return`<div class="report-card">
+      <div class="report-ic">💸</div>
+      <div class="report-info">
+        <div class="report-name">${t.pax} passageiro${t.pax!==1?'s':''} · ${t.valPerPax?.toLocaleString('pt-PT')||0} AKZ/pessoa</div>
+        <div class="report-sub">${dt}</div>
+      </div>
+      <div class="report-amt">+${t.amount.toLocaleString('pt-PT')} AKZ</div>
+    </div>`;
+  }).join('');
+}
+
+// ── MÉTODO DE PAGAMENTO (passageiro) ─────────────────────────
+function savePaymentMethod(){
+  const bank=document.getElementById('pay-bank-name').value;
+  const iban=document.getElementById('pay-iban').value.trim().toUpperCase();
+  if(!bank){alert('Selecciona o banco');return;}
+  if(!iban||iban.length<10){alert('Introduz um IBAN válido');return;}
+  sv('yp_payment_method',{bank,iban});
+  document.getElementById('payment-method-success').classList.add('show');
+  setTimeout(()=>document.getElementById('payment-method-success').classList.remove('show'),3000);
+}
+
+// ── HISTÓRICO PASSAGEIRO ──────────────────────────────────────
+function loadHistoryPanel(){
+  const total=pTxns.reduce((s,t)=>s+(t.amount||0),0);
+  const avg=pTxns.length>0?Math.round(total/pTxns.length):0;
+  setText('hist-total',total.toLocaleString('pt-PT')+' AKZ');
+  setText('hist-count',pTxns.length);
+  setText('hist-avg',avg.toLocaleString('pt-PT')+' AKZ');
+  const list=document.getElementById('hist-list');
+  if(!list)return;
+  if(pTxns.length===0){
+    list.innerHTML='<div class="empty" style="color:var(--text2);font-size:13px;text-align:center;padding:20px;">Sem viagens ainda.</div>';
+    return;
+  }
+  list.innerHTML=pTxns.map(t=>{
+    const d=new Date(t.created_at||Date.now());
+    const dt=d.toLocaleDateString('pt-PT')+' '+d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+    const icon=t.channel==='qr'?'📷':'⌨️';
+    return`<div class="report-card">
+      <div class="report-ic">${icon}</div>
+      <div class="report-info">
+        <div class="report-name">Viagem · ${t.plate}${t.driverName?' · '+t.driverName:''}</div>
+        <div class="report-sub">${dt} · ${t.channel==='qr'?'QR Code':'Matrícula manual'}</div>
+      </div>
+      <div class="report-amt" style="color:var(--red)">-${t.amount.toLocaleString('pt-PT')} AKZ</div>
+    </div>`;
+  }).join('');
+}
+
+// ── HELPERS ──
+function setText(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+</script>
+
+<!-- ══ MODAIS DE PERFIL ══ -->
+
+<!-- Modal: Conta Bancária -->
+<!-- ══ PAINÉIS DE PERFIL ══════════════════════════════════════ -->
+<!-- INFORMAÇÃO PESSOAL (passageiro) -->
+<div class="prof-panel" id="panel-personal-info">
+  <div class="panel-hdr">
+    <div class="panel-back" onclick="closePanel('panel-personal-info')">←</div>
+    <div class="panel-title">Informação pessoal</div>
+  </div>
+  <div class="panel-body">
+    <div class="panel-section">
+      <div class="panel-section-title">Os teus dados</div>
+      <div class="info-card" id="personal-info-card">
+        <div class="info-row"><span>Nome</span><span id="pi-name">—</span></div>
+        <div class="info-row"><span>BI</span><span id="pi-bi">—</span></div>
+        <div class="info-row"><span>Telefone</span><span id="pi-phone">—</span></div>
+        <div class="info-row"><span>Estado</span><span style="color:var(--green2)">✓ Verificado</span></div>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-section-title">Actualizar telefone</div>
+      <div class="f-group">
+        <label class="f-lbl">Novo número de telefone</label>
+        <input class="f-inp" type="tel" id="new-phone" placeholder="+244 9XX XXX XXX" inputmode="tel">
+      </div>
+      <button class="btn-full" style="background:linear-gradient(135deg,var(--gold),#E8A020);" onclick="updatePhone()">Actualizar telefone</button>
+      <div class="success-msg" id="phone-success">✓ Telefone actualizado!</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- CONTA BANCÁRIA (motorista) -->
+<div class="prof-panel" id="panel-bank">
+  <div class="panel-hdr">
+    <div class="panel-back" onclick="closePanel('panel-bank')">←</div>
+    <div class="panel-title">Conta bancária</div>
+  </div>
+  <div class="panel-body">
+    <div class="panel-section">
+      <div class="panel-section-title">Dados bancários para liquidação D+0</div>
+      <div class="f-group">
+        <label class="f-lbl">Banco</label>
+        <select class="f-inp" id="bank-name" style="appearance:none;">
+          <option value="">Selecciona o banco</option>
+          <option value="BFA">BFA — Banco de Fomento Angola</option>
+          <option value="BAI">BAI — Banco Angolano de Investimentos</option>
+          <option value="BCI">BCI — Banco de Comércio e Indústria</option>
+          <option value="BPC">BPC — Banco de Poupança e Crédito</option>
+          <option value="Millennium">Millennium Atlântico</option>
+          <option value="SOL">Banco SOL</option>
+          <option value="Keve">Banco Keve</option>
+          <option value="Standard">Standard Bank Angola</option>
+        </select>
+      </div>
+      <div class="f-group">
+        <label class="f-lbl">IBAN</label>
+        <input class="f-inp upper" type="text" id="bank-iban" placeholder="AO06 0000 0000 0000 0000 0000 0">
+        <p class="f-hint">O IBAN começa sempre com AO06</p>
+      </div>
+      <div class="f-group">
+        <label class="f-lbl">Nome do titular</label>
+        <input class="f-inp" type="text" id="bank-holder" placeholder="Nome como aparece no cartão">
+      </div>
+      <button class="btn-full" onclick="saveBankAccount()">Guardar conta bancária</button>
+      <div class="success-msg" id="bank-success">✓ Conta bancária guardada com sucesso!</div>
+    </div>
+    <div class="panel-section" id="bank-current-section" style="display:none;">
+      <div class="panel-section-title">Conta actual</div>
+      <div class="info-card" id="bank-current-info"></div>
+    </div>
+  </div>
+</div>
+
+<!-- VEÍCULO (motorista) -->
+<div class="prof-panel" id="panel-vehicle">
+  <div class="panel-hdr">
+    <div class="panel-back" onclick="closePanel('panel-vehicle')">←</div>
+    <div class="panel-title">Informação do veículo</div>
+  </div>
+  <div class="panel-body">
+    <div class="panel-section">
+      <div class="panel-section-title">Dados do veículo</div>
+      <div class="f-group">
+        <label class="f-lbl">Tipo de veículo</label>
+        <div class="type-row">
+          <button class="type-btn" id="veh-type-car" onclick="setVehType('car')"><span>🚗</span>Carro</button>
+          <button class="type-btn" id="veh-type-moto" onclick="setVehType('moto')"><span>🏍️</span>Moto</button>
+        </div>
+      </div>
+      <div class="f-group">
+        <label class="f-lbl">Matrícula</label>
+        <input class="f-inp upper" type="text" id="veh-plate" placeholder="LDA-00-00-HA">
+        <p class="f-hint">A matrícula é a tua identificação YelaPay+ — não pode ser alterada após registo</p>
+      </div>
+      <div class="f-group">
+        <label class="f-lbl">Cor do veículo</label>
+        <input class="f-inp" type="text" id="veh-color" placeholder="ex: Branco, Prata, Azul">
+      </div>
+      <div class="f-group">
+        <label class="f-lbl">Rota habitual</label>
+        <input class="f-inp" type="text" id="veh-route" placeholder="ex: Luanda Centro → Cacuaco">
+      </div>
+      <button class="btn-full" onclick="saveVehicle()">Guardar informação</button>
+      <div class="success-msg" id="vehicle-success">✓ Informação do veículo guardada!</div>
+    </div>
+  </div>
+</div>
+
+<!-- ALTERAR PIN (motorista) -->
+<div class="prof-panel" id="panel-pin-driver">
+  <div class="panel-hdr">
+    <div class="panel-back" onclick="closePanel('panel-pin-driver')">←</div>
+    <div class="panel-title">Alterar PIN</div>
+  </div>
+  <div class="panel-body">
+    <div class="panel-section">
+      <div class="panel-section-title">Segurança</div>
+      <div class="f-group">
+        <label class="f-lbl">PIN actual</label>
+        <div class="pin-row">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="old-pin-1">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="old-pin-2">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="old-pin-3">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="old-pin-4">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="old-pin-5">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="old-pin-6">
+        </div>
+      </div>
+      <div class="f-group">
+        <label class="f-lbl">Novo PIN (4 a 6 dígitos)</label>
+        <div class="pin-row">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="new-pin-1">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="new-pin-2">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="new-pin-3">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="new-pin-4">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="new-pin-5">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="new-pin-6">
+        </div>
+      </div>
+      <div class="f-group">
+        <label class="f-lbl">Confirmar novo PIN</label>
+        <div class="pin-row">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="conf-pin-1">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="conf-pin-2">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="conf-pin-3">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="conf-pin-4">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="conf-pin-5">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="conf-pin-6">
+        </div>
+      </div>
+      <button class="btn-full" onclick="changePin('driver')">Alterar PIN</button>
+      <div class="success-msg" id="pin-driver-success">✓ PIN alterado com sucesso!</div>
+      <div class="error-msg" id="pin-driver-error">❌ PIN actual incorrecto ou PINs não coincidem.</div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICAÇÕES (motorista) -->
+<div class="prof-panel" id="panel-notif-driver">
+  <div class="panel-hdr">
+    <div class="panel-back" onclick="closePanel('panel-notif-driver')">←</div>
+    <div class="panel-title">Notificações</div>
+  </div>
+  <div class="panel-body">
+    <div class="panel-section">
+      <div class="panel-section-title">Alertas de pagamento</div>
+      <div class="toggle-row">
+        <div class="toggle-info"><strong>Pagamento recebido</strong><small>Notificação imediata quando receberes um pagamento</small></div>
+        <button class="toggle on" id="notif-payment" onclick="toggleNotif(this)"></button>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info"><strong>Liquidação diária</strong><small>Resumo da receita no fim do dia</small></div>
+        <button class="toggle on" id="notif-daily" onclick="toggleNotif(this)"></button>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info"><strong>Alertas de segurança</strong><small>Login em novo dispositivo ou alteração de PIN</small></div>
+        <button class="toggle on" id="notif-security" onclick="toggleNotif(this)"></button>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-section-title">Canal de notificação</div>
+      <div class="toggle-row">
+        <div class="toggle-info"><strong>Push (app)</strong><small>Notificações no telemóvel</small></div>
+        <button class="toggle on" onclick="toggleNotif(this)"></button>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info"><strong>SMS</strong><small>Mensagem de texto para <span id="notif-phone-driver">—</span></small></div>
+        <button class="toggle" onclick="toggleNotif(this)"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RELATÓRIOS (motorista) -->
+<div class="prof-panel" id="panel-reports">
+  <div class="panel-hdr">
+    <div class="panel-back" onclick="closePanel('panel-reports')">←</div>
+    <div class="panel-title">Relatórios</div>
+  </div>
+  <div class="panel-body">
+    <div class="panel-section">
+      <div class="panel-section-title">Resumo financeiro</div>
+      <div class="info-card">
+        <div class="info-row"><span>Total recebido (hoje)</span><span id="rep-today">0 AKZ</span></div>
+        <div class="info-row"><span>Total passageiros (hoje)</span><span id="rep-pax">0</span></div>
+        <div class="info-row"><span>Média por viagem</span><span id="rep-avg">0 AKZ</span></div>
+        <div class="info-row"><span>Total transacções</span><span id="rep-txns">0</span></div>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-section-title">Histórico de transacções</div>
+      <div id="rep-list">
+        <div class="empty" style="color:var(--text2);font-size:13px;text-align:center;padding:20px;">Sem transacções ainda.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MÉTODO DE PAGAMENTO (passageiro) -->
+<div class="prof-panel" id="panel-payment-method">
+  <div class="panel-hdr">
+    <div class="panel-back" onclick="closePanel('panel-payment-method')">←</div>
+    <div class="panel-title">Método de pagamento</div>
+  </div>
+  <div class="panel-body">
+    <div class="panel-section">
+      <div class="panel-section-title">Conta bancária para débito</div>
+      <div class="f-group">
+        <label class="f-lbl">Banco</label>
+        <select class="f-inp" id="pay-bank-name" style="appearance:none;">
+          <option value="">Selecciona o banco</option>
+          <option value="BFA">BFA — Banco de Fomento Angola</option>
+          <option value="BAI">BAI — Banco Angolano de Investimentos</option>
+          <option value="BCI">BCI — Banco de Comércio e Indústria</option>
+          <option value="BPC">BPC — Banco de Poupança e Crédito</option>
+          <option value="Millennium">Millennium Atlântico</option>
+          <option value="SOL">Banco SOL</option>
+          <option value="Keve">Banco Keve</option>
+          <option value="Standard">Standard Bank Angola</option>
+        </select>
+      </div>
+      <div class="f-group">
+        <label class="f-lbl">IBAN</label>
+        <input class="f-inp upper" type="text" id="pay-iban" placeholder="AO06 0000 0000 0000 0000 0000 0">
+      </div>
+      <button class="btn-full" style="background:linear-gradient(135deg,var(--gold),#E8A020);" onclick="savePaymentMethod()">Guardar método de pagamento</button>
+      <div class="success-msg" id="payment-method-success">✓ Método de pagamento guardado!</div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-section-title">Saldo YelaPay+</div>
+      <div class="info-card">
+        <div class="info-row"><span>Saldo disponível</span><span style="color:var(--green2);font-weight:700;">0 AKZ</span></div>
+        <div class="info-row"><span>Carregar saldo</span><span style="color:var(--gold);">Em breve</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ALTERAR PIN (passageiro) -->
+<div class="prof-panel" id="panel-pin-passenger">
+  <div class="panel-hdr">
+    <div class="panel-back" onclick="closePanel('panel-pin-passenger')">←</div>
+    <div class="panel-title">Alterar PIN</div>
+  </div>
+  <div class="panel-body">
+    <div class="panel-section">
+      <div class="panel-section-title">Segurança</div>
+      <div class="f-group">
+        <label class="f-lbl">PIN actual</label>
+        <div class="pin-row">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-old-pin-1">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-old-pin-2">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-old-pin-3">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-old-pin-4">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-old-pin-5">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-old-pin-6">
+        </div>
+      </div>
+      <div class="f-group">
+        <label class="f-lbl">Novo PIN (4 a 6 dígitos)</label>
+        <div class="pin-row">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-new-pin-1">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-new-pin-2">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-new-pin-3">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-new-pin-4">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-new-pin-5">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-new-pin-6">
+        </div>
+      </div>
+      <div class="f-group">
+        <label class="f-lbl">Confirmar novo PIN</label>
+        <div class="pin-row">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-conf-pin-1">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-conf-pin-2">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-conf-pin-3">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-conf-pin-4">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-conf-pin-5">
+          <input class="pin-inp" type="password" maxlength="1" inputmode="numeric" id="p-conf-pin-6">
+        </div>
+      </div>
+      <button class="btn-full" style="background:linear-gradient(135deg,var(--gold),#E8A020);" onclick="changePin('passenger')">Alterar PIN</button>
+      <div class="success-msg" id="pin-passenger-success">✓ PIN alterado com sucesso!</div>
+      <div class="error-msg" id="pin-passenger-error">❌ PIN actual incorrecto ou PINs não coincidem.</div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICAÇÕES (passageiro) -->
+<div class="prof-panel" id="panel-notif-passenger">
+  <div class="panel-hdr">
+    <div class="panel-back" onclick="closePanel('panel-notif-passenger')">←</div>
+    <div class="panel-title">Notificações</div>
+  </div>
+  <div class="panel-body">
+    <div class="panel-section">
+      <div class="panel-section-title">Alertas de pagamento</div>
+      <div class="toggle-row">
+        <div class="toggle-info"><strong>Recibo de viagem</strong><small>Receber recibo após cada pagamento</small></div>
+        <button class="toggle on" onclick="toggleNotif(this)"></button>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info"><strong>Resumo mensal</strong><small>Total de viagens e gastos do mês</small></div>
+        <button class="toggle on" onclick="toggleNotif(this)"></button>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info"><strong>Alertas de segurança</strong><small>Login em novo dispositivo</small></div>
+        <button class="toggle on" onclick="toggleNotif(this)"></button>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-section-title">Canal</div>
+      <div class="toggle-row">
+        <div class="toggle-info"><strong>Push (app)</strong><small>Notificações no telemóvel</small></div>
+        <button class="toggle on" onclick="toggleNotif(this)"></button>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info"><strong>SMS</strong><small>Mensagem de texto</small></div>
+        <button class="toggle" onclick="toggleNotif(this)"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTÓRICO COMPLETO (passageiro) -->
+<div class="prof-panel" id="panel-history">
+  <div class="panel-hdr">
+    <div class="panel-back" onclick="closePanel('panel-history')">←</div>
+    <div class="panel-title">Histórico de viagens</div>
+  </div>
+  <div class="panel-body">
+    <div class="panel-section">
+      <div class="panel-section-title">Resumo</div>
+      <div class="info-card">
+        <div class="info-row"><span>Total gasto</span><span id="hist-total" style="color:var(--red);font-weight:700;">0 AKZ</span></div>
+        <div class="info-row"><span>Total de viagens</span><span id="hist-count">0</span></div>
+        <div class="info-row"><span>Média por viagem</span><span id="hist-avg">0 AKZ</span></div>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-section-title">Todas as viagens</div>
+      <div id="hist-list">
+        <div class="empty" style="color:var(--text2);font-size:13px;text-align:center;padding:20px;">Sem viagens ainda.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+Add YelaPay+ PWA app V5
