@@ -3,7 +3,7 @@
 // Guarda todos os recursos da app no telemóvel
 // ─────────────────────────────────────────────────────────────
 
-const CACHE_NAME = 'yelapay-v5';
+const CACHE_NAME = 'yelapay-v6';
 const OFFLINE_URL = '/yelapay-platform/';
 
 // Recursos a guardar em cache (app shell)
